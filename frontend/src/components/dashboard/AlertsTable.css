@@ -1,5 +1,6 @@
 .alerts-table-container {
   background-color: #0f1629;
+  border: 1px solid rgba(0, 229, 255, 0.4);
   border-radius: 12px;
   padding: 25px;
   margin-bottom: 30px;
@@ -97,8 +98,8 @@
 }
 
 .details-btn:hover {
-  background-color: #00E5FF;
-  color: #0A0F1F;
+  background-color: rgba(0, 229, 255, 0.2);
+  color: #00E5FF;
 }
 
 @media (max-width: 768px) {

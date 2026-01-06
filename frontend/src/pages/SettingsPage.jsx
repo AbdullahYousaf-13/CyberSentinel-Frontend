@@ -31,8 +31,10 @@ const SettingsPage = () => {
         <h1>Settings</h1>
         <div className="settings-grid">
           <section className="setting-card">
-            <h2>2FA Authentication</h2>
-            <p className="muted">Add an extra layer of security to your account.</p>
+            <div className="setting-card-content">
+              <h2>2FA Authentication</h2>
+              <p className="muted">Add an extra layer of security to your account.</p>
+            </div>
             <label className="switch">
               <input type="checkbox" checked={twoFAEnabled} onChange={() => setTwoFAEnabled(!twoFAEnabled)} />
               <span className="slider" />
@@ -40,8 +42,10 @@ const SettingsPage = () => {
           </section>
 
           <section className="setting-card">
-            <h2>Email Notifications</h2>
-            <p className="muted">Receive updates and alerts via email.</p>
+            <div className="setting-card-content">
+              <h2>Email Notifications</h2>
+              <p className="muted">Receive updates and alerts via email.</p>
+            </div>
             <label className="switch">
               <input type="checkbox" checked={emailNotifications} onChange={() => setEmailNotifications(!emailNotifications)} />
               <span className="slider" />
@@ -49,19 +53,23 @@ const SettingsPage = () => {
           </section>
 
           <section className="setting-card">
-            <h2>Alert Frequency</h2>
-            <div className="btn-group">
-              <button className={`btn ${frequency === 'immediate' ? 'active' : ''}`} onClick={() => setFrequency('immediate')}>Immediate</button>
-              <button className={`btn ${frequency === 'daily' ? 'active' : ''}`} onClick={() => setFrequency('daily')}>Daily Digest</button>
+            <div className="setting-card-content">
+              <h2>Alert Frequency</h2>
+              <div className="btn-group">
+                <button className={`btn ${frequency === 'immediate' ? 'active' : ''}`} onClick={() => setFrequency('immediate')}>Immediate</button>
+                <button className={`btn ${frequency === 'daily' ? 'active' : ''}`} onClick={() => setFrequency('daily')}>Daily Digest</button>
+              </div>
             </div>
           </section>
 
           <section className="setting-card">
-            <h2>Severity Filter</h2>
-            <div className="btn-group">
-              <button className={`btn ${severityFilters.high ? 'active' : ''}`} onClick={() => toggleSeverity('high')}>High Severity</button>
-              <button className={`btn ${severityFilters.medium ? 'active' : ''}`} onClick={() => toggleSeverity('medium')}>Medium Severity</button>
-              <button className={`btn ${severityFilters.low ? 'active' : ''}`} onClick={() => toggleSeverity('low')}>Low Severity</button>
+            <div className="setting-card-content">
+              <h2>Severity Filter</h2>
+              <div className="btn-group">
+                <button className={`severity-filter-btn high ${severityFilters.high ? 'active' : ''}`} onClick={() => toggleSeverity('high')}>High Severity</button>
+                <button className={`severity-filter-btn medium ${severityFilters.medium ? 'active' : ''}`} onClick={() => toggleSeverity('medium')}>Medium Severity</button>
+                <button className={`severity-filter-btn low ${severityFilters.low ? 'active' : ''}`} onClick={() => toggleSeverity('low')}>Low Severity</button>
+              </div>
             </div>
           </section>
 

@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShieldAlt, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import './AlertCards.css';
 
-const AlertCards = ({ stats, onDetails }) => {
+const AlertCards = ({ stats }) => {
   const cards = [
     {
       title: 'Total Alerts',
@@ -45,23 +45,24 @@ const AlertCards = ({ stats, onDetails }) => {
         <div
           key={index}
           className="alert-card"
-          style={{ borderColor: card.borderColor }}
+          style={{ 
+            borderColor: card.borderColor,
+            boxShadow: `0 0 20px ${card.color}66`
+          }}
         >
           <div className="alert-card-header">
             <FontAwesomeIcon
               icon={card.icon}
               className="alert-card-icon"
-              style={{ color: card.color }}
+              style={{ 
+                color: card.color,
+                filter: `drop-shadow(0 0 8px ${card.color}66)`
+              }}
             />
             <span className="alert-card-title">{card.title}</span>
           </div>
           <div className="alert-card-value" style={{ color: card.color }}>
             {card.value}
-          </div>
-          <div className="alert-card-actions">
-            <button className="details-btn" onClick={() => onDetails && onDetails(card.key)}>
-              Details
-            </button>
           </div>
         </div>
       ))}

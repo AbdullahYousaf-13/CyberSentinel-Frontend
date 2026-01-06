@@ -8,6 +8,7 @@
   margin-top: 70px;
   padding: 30px;
   min-height: calc(100vh - 70px);
+  background-color: #0A0F1F;
 }
 
 .main-content h1 {
