@@ -1,0 +1,50 @@
+.alert-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.alert-card {
+  background-color: #0f1629;
+  border: 2px solid;
+  border-radius: 12px;
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.alert-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 229, 255, 0.2);
+}
+
+.alert-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.alert-card-icon {
+  font-size: 24px;
+}
+
+.alert-card-title {
+  font-size: 14px;
+  color: #8b9dc3;
+  font-weight: 500;
+}
+
+.alert-card-value {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .alert-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+

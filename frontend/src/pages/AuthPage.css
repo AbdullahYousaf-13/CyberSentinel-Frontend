@@ -1,0 +1,17 @@
+.auth-page {
+  min-height: 100vh;
+  background-color: #0A0F1F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.auth-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+

@@ -1,8 +1,7 @@
-.attack-chart-container {
+.threat-pie-container {
   background-color: #0f1629;
   border-radius: 12px;
   padding: 25px;
-  margin-bottom: 30px;
 }
 
 .section-title {
@@ -13,7 +12,7 @@
 }
 
 @media (max-width: 768px) {
-  .attack-chart-container {
+  .threat-pie-container {
     padding: 15px;
   }
 }

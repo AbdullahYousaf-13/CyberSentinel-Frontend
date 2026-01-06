@@ -1,0 +1,32 @@
+.dashboard-layout {
+  min-height: 100vh;
+  background-color: #0A0F1F;
+}
+
+.main-content {
+  margin-left: 250px;
+  margin-top: 70px;
+  padding: 30px;
+  min-height: calc(100vh - 70px);
+}
+
+.charts-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 70px;
+    padding: 20px 15px;
+  }
+}
+
+
