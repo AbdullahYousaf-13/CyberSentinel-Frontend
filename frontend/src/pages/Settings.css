@@ -1,0 +1,98 @@
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.setting-card {
+  background-color: #0f1629;
+  border: 1px solid #1a2332;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.setting-card h2 {
+  margin: 0 0 8px;
+  color: #ffffff;
+  font-size: 18px;
+}
+
+.muted {
+  color: #8b9dc3;
+  margin: 0 0 12px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 56px;
+  height: 30px;
+}
+.switch input { display: none; }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #1a2332;
+  border: 1px solid #2a3441;
+  border-radius: 30px;
+  transition: .2s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 22px; width: 22px;
+  left: 4px; top: 3px;
+  background-color: #8b9dc3;
+  border-radius: 50%;
+  transition: .2s;
+}
+.switch input:checked + .slider {
+  border-color: #00E5FF;
+  background-color: rgba(0,229,255,0.15);
+}
+.switch input:checked + .slider:before {
+  transform: translateX(26px);
+  background-color: #00E5FF;
+}
+
+.btn-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.btn {
+  background: transparent;
+  border: 1px solid #2a3441;
+  color: #8b9dc3;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn.active, .btn:hover {
+  color: #00E5FF;
+  border-color: #00E5FF;
+}
+
+.settings-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+}
+.save-btn {
+  background-color: #00E5FF;
+  color: #0A0F1F;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.save-btn:hover { background-color: #00b8cc; }
+
+@media (max-width: 768px) {
+  .settings-actions { justify-content: stretch; }
+  .save-btn { width: 100%; }
+}
+
+

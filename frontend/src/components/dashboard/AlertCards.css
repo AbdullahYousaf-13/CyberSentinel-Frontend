@@ -41,6 +41,29 @@
   line-height: 1;
 }
 
+.alert-card-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.details-btn {
+  background-color: transparent;
+  border: 1px solid #00E5FF;
+  color: #00E5FF;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.details-btn:hover {
+  background-color: #00E5FF;
+  color: #0A0F1F;
+}
+
 @media (max-width: 768px) {
   .alert-cards {
     grid-template-columns: 1fr;

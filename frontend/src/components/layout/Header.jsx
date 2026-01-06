@@ -8,7 +8,11 @@ const Header = () => {
     <header className="header">
       <div className="header-left">
         <div className="logo-container">
-          <div className="logo-shield"></div>
+          <img
+            src={`${process.env.PUBLIC_URL}/cybersentinel-logo.png`}
+            alt="CyberSentinel Logo"
+            className="logo-img"
+          />
           <span className="logo-text">CYBERSENTINEL</span>
         </div>
         <h1 className="header-title">CYBERSENTINEL DASHBOARD</h1>

@@ -4,10 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faHome,
   faExclamationTriangle,
-  faFileAlt,
   faShieldAlt,
-  faComments,
-  faSitemap,
   faCog
 } from '@fortawesome/free-solid-svg-icons';
 import './Sidebar.css';
@@ -18,10 +15,7 @@ const Sidebar = () => {
   const menuItems = [
     { path: '/dashboard', icon: faHome, label: 'Dashboard' },
     { path: '/alerts', icon: faExclamationTriangle, label: 'Alerts' },
-    { path: '/logs', icon: faFileAlt, label: 'Logs' },
     { path: '/precautions', icon: faShieldAlt, label: 'Precautions & Measures' },
-    { path: '/feedback', icon: faComments, label: 'Human Feedback' },
-    { path: '/architecture', icon: faSitemap, label: 'Architecture' },
     { path: '/settings', icon: faCog, label: 'Settings' }
   ];
 

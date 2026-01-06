@@ -25,25 +25,10 @@
   gap: 10px;
 }
 
-.logo-shield {
+.logo-img {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #00E5FF 0%, #0099cc 100%);
-  border-radius: 8px;
-  position: relative;
-  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-}
-
-.logo-shield::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 20px;
-  height: 20px;
-  background-color: #0A0F1F;
-  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  object-fit: contain;
 }
 
 .logo-text {
@@ -95,7 +80,7 @@
     font-size: 14px;
   }
 
-  .logo-shield {
+  .logo-img {
     width: 30px;
     height: 30px;
   }
