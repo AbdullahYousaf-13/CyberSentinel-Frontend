@@ -19,3 +19,4 @@ const ArchitecturePage = () => {
 export default ArchitecturePage;
 
 
+

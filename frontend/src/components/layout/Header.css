@@ -5,7 +5,8 @@
   right: 0;
   height: 70px;
   background-color: #0f1629;
-  border-bottom: 1px solid #1a2332;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.4);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -23,6 +24,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 8px;
 }
 
 .logo-img {
@@ -36,6 +40,14 @@
   font-weight: 700;
   color: #00E5FF;
   letter-spacing: 1px;
+  border-left: 1px solid rgba(0, 229, 255, 0.4);
+  padding-left: 10px;
+}
+
+.header-title-separator {
+  width: 1px;
+  height: 30px;
+  background-color: rgba(0, 229, 255, 0.4);
 }
 
 .header-title {
@@ -43,6 +55,7 @@
   font-weight: 600;
   color: #ffffff;
   margin: 0;
+  padding-left: 20px;
 }
 
 .header-right {
@@ -60,11 +73,182 @@
   padding: 10px;
   border-radius: 8px;
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .header-icon-btn:hover {
   color: #00E5FF;
   background-color: #1a2332;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #FF4444;
+  color: #ffffff;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.notification-wrapper,
+.user-menu-wrapper {
+  position: relative;
+}
+
+.notification-dropdown,
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background-color: #0f1629;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 8px;
+  min-width: 320px;
+  max-width: 400px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.notification-dropdown {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.dropdown-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-header h3 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.unread-count {
+  color: #00E5FF;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.notification-list {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background-color: rgba(0, 229, 255, 0.05);
+}
+
+.notification-item.unread {
+  background-color: rgba(0, 229, 255, 0.05);
+}
+
+.notification-item.unread::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: #00E5FF;
+}
+
+.notification-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.notification-message {
+  color: #ffffff;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.notification-time {
+  color: #8b9dc3;
+  font-size: 12px;
+}
+
+.user-dropdown {
+  min-width: 200px;
+  padding: 10px 0;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(0, 229, 255, 0.2);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00E5FF;
+}
+
+.user-name {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: rgba(0, 229, 255, 0.2);
+  margin: 8px 0;
+}
+
+.dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  color: #8b9dc3;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(0, 229, 255, 0.05);
+  color: #00E5FF;
+}
+
+.dropdown-item svg {
+  font-size: 16px;
 }
 
 @media (max-width: 768px) {
@@ -74,6 +258,7 @@
 
   .header-title {
     font-size: 16px;
+    padding-left: 10px;
   }
 
   .logo-text {
@@ -84,6 +269,17 @@
     width: 30px;
     height: 30px;
   }
+
+  .header-title-separator {
+    display: none;
+  }
+
+  .logo-container {
+    padding: 6px 8px;
+  }
+
+  .notification-dropdown,
+  .user-dropdown {
+    right: -10px;
+  }
 }
-
-

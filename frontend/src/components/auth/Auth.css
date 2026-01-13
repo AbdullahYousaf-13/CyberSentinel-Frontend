@@ -1,10 +1,253 @@
+.login-container {
+  background-color: #0f1629;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 12px;
+  padding: 50px 40px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.login-header h1 {
+  color: #00E5FF;
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 10px;
+  letter-spacing: 2px;
+}
+
+.login-subtitle {
+  color: #8b9dc3;
+  font-size: 14px;
+  margin: 0;
+}
+
+.login-form {
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  color: #ffffff;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px 16px;
+  background-color: #1a2332;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input::placeholder {
+  color: #8b9dc3;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #00E5FF;
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background-color: #00E5FF;
+  color: #0A0F1F;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #00b8cc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 229, 255, 0.3);
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: 14px;
+  background-color: transparent;
+  color: #00E5FF;
+  border: 1px solid #00E5FF;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(0, 229, 255, 0.1);
+}
+
+.forgot-password {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.forgot-password-btn {
+  background: transparent;
+  border: none;
+  color: #8b9dc3;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  transition: color 0.3s ease;
+}
+
+.forgot-password-btn:hover {
+  color: #00E5FF;
+}
+
+/* Registration Form Styles */
+.registration-container {
+  background-color: #0f1629;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 12px;
+  padding: 50px 40px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.registration-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.registration-header h2 {
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.registration-header p {
+  color: #8b9dc3;
+  font-size: 14px;
+  margin: 0;
+}
+
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.step {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid rgba(0, 229, 255, 0.4);
+  color: #8b9dc3;
+  transition: all 0.3s ease;
+}
+
+.step.active {
+  background-color: #00E5FF;
+  border-color: #00E5FF;
+  color: #0A0F1F;
+}
+
+.step.completed {
+  background-color: rgba(0, 229, 255, 0.2);
+  border-color: #00E5FF;
+  color: #00E5FF;
+}
+
+.otp-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.otp-digit {
+  width: 50px;
+  height: 60px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  background-color: #1a2332;
+  border: 2px solid rgba(0, 229, 255, 0.4);
+  border-radius: 8px;
+  color: #00E5FF;
+  transition: all 0.3s ease;
+}
+
+.otp-digit:focus {
+  outline: none;
+  border-color: #00E5FF;
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
+}
+
+.form-actions-register {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.btn-back {
+  padding: 14px 24px;
+  background-color: transparent;
+  color: #8b9dc3;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  border-color: #00E5FF;
+  color: #00E5FF;
+}
+
+/* Auth form for general use */
 .auth-form {
   background-color: #0f1629;
   border-radius: 12px;
   padding: 40px;
   max-width: 450px;
   width: 100%;
-  border: 1px solid #1a2332;
+  border: 1px solid rgba(0, 229, 255, 0.4);
 }
 
 .auth-form h2 {
@@ -21,72 +264,6 @@
   font-size: 14px;
 }
 
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  color: #8b9dc3;
-  margin-bottom: 8px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 12px 15px;
-  background-color: #1a2332;
-  border: 1px solid #2a3441;
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 14px;
-  transition: all 0.3s ease;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #00E5FF;
-  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
-}
-
-.auth-button {
-  width: 100%;
-  padding: 12px;
-  background-color: #00E5FF;
-  color: #0A0F1F;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 10px;
-}
-
-.auth-button:hover {
-  background-color: #00b8cc;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 229, 255, 0.3);
-}
-
-.auth-link {
-  text-align: center;
-  margin-top: 20px;
-  color: #8b9dc3;
-  font-size: 14px;
-}
-
-.auth-link a {
-  color: #00E5FF;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.auth-link a:hover {
-  text-decoration: underline;
-}
-
 .two-factor-inputs {
   display: flex;
   justify-content: space-between;
@@ -101,7 +278,7 @@
   font-size: 24px;
   font-weight: 600;
   background-color: #1a2332;
-  border: 2px solid #2a3441;
+  border: 2px solid rgba(0, 229, 255, 0.4);
   border-radius: 8px;
   color: #00E5FF;
   transition: all 0.3s ease;
@@ -114,15 +291,15 @@
 }
 
 @media (max-width: 768px) {
-  .auth-form {
+  .login-container,
+  .registration-container {
     padding: 30px 20px;
   }
 
+  .otp-digit,
   .two-factor-digit {
     width: 45px;
     height: 55px;
     font-size: 20px;
   }
 }
-
-

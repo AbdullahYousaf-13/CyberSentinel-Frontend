@@ -52,3 +52,4 @@ const ThreatPie = ({ data }) => {
 export default ThreatPie;
 
 
+

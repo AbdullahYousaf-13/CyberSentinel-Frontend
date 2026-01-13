@@ -59,3 +59,4 @@ const AttackChart = ({ data }) => {
 export default AttackChart;
 
 
+
