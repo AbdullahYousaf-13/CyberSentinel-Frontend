@@ -36,8 +36,9 @@ const ThreatPie = ({ data }) => {
               backgroundColor: '#0f1629',
               border: '1px solid #1a2332',
               borderRadius: '8px',
-              color: '#ffffff'
             }}
+            labelStyle={{ color: '#FFFFFF' }}
+            itemStyle={{ color: '#FFFFFF' }}
           />
           <Legend
             wrapperStyle={{ color: '#8b9dc3', fontSize: '14px' }}
