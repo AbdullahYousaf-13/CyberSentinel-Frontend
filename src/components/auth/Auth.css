@@ -73,6 +73,15 @@
   margin-bottom: 20px;
 }
 
+.form-error {
+  background-color: rgba(255, 68, 68, 0.15);
+  border: 1px solid rgba(255, 68, 68, 0.6);
+  color: #ffb3b3;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
 .btn-primary {
   width: 100%;
   padding: 14px;
@@ -221,6 +230,37 @@
   display: flex;
   gap: 12px;
   margin-top: 30px;
+}
+
+.checkbox-group {
+  margin-top: 10px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #8b9dc3;
+  font-size: 14px;
+}
+
+.totp-setup {
+  text-align: center;
+}
+
+.totp-link {
+  display: inline-block;
+  color: #00E5FF;
+  margin-bottom: 10px;
+}
+
+.totp-secret {
+  font-size: 13px;
+  color: #8b9dc3;
+}
+
+.totp-secret span {
+  color: #ffffff;
 }
 
 .btn-back {

@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { login } from '../../services/api';
 import './Auth.css';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    totpCode: ''
   });
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -16,10 +20,23 @@ const LoginForm = () => {
     });
   };
 
-  const handleAccessSystem = (e) => {
+  const handleAccessSystem = async (e) => {
     e.preventDefault();
-    // Handle login logic here - for now just navigate to dashboard
-    navigate('/dashboard');
+    setError('');
+    setIsSubmitting(true);
+    try {
+      const response = await login(
+        formData.email,
+        formData.password,
+        formData.totpCode || null
+      );
+      localStorage.setItem('token', response.access_token);
+      navigate('/dashboard');
+    } catch (err) {
+      setError('Login failed. Check your email/password or TOTP setup.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCreateAccount = () => {
@@ -63,9 +80,21 @@ const LoginForm = () => {
             required
           />
         </div>
+        <div className="form-group">
+          <label htmlFor="totpCode">TOTP Code (if enabled)</label>
+          <input
+            type="text"
+            id="totpCode"
+            name="totpCode"
+            value={formData.totpCode}
+            onChange={handleChange}
+            placeholder="123456"
+          />
+        </div>
+        {error && <div className="form-error">{error}</div>}
 
         <div className="form-actions">
-          <button type="submit" className="btn-primary">
+          <button type="submit" className="btn-primary" disabled={isSubmitting}>
             Access System
           </button>
           <button type="button" className="btn-secondary" onClick={handleCreateAccount}>

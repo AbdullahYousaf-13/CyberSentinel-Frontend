@@ -16,7 +16,7 @@ const Header = () => {
   const getPageTitle = () => {
     const path = location.pathname;
     if (path === '/dashboard') return 'CYBERSENTINEL DASHBOARD';
-    if (path === '/alerts') return 'ALERTS';
+    if (path === '/logs') return 'LOGS';
     if (path === '/precautions') return 'PRECAUTIONS & MEASURES';
     if (path === '/settings') return 'SETTINGS';
     return 'CYBERSENTINEL DASHBOARD';

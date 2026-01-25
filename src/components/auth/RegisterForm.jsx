@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { login, register, setupTotp, verifyTotp } from '../../services/api';
 import './Auth.css';
 
 const RegisterForm = () => {
-  const [step, setStep] = useState(1); // 1: Form, 2: OTP
+  const [step, setStep] = useState(1); // 1: Form, 2: TOTP
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -12,6 +13,11 @@ const RegisterForm = () => {
     confirmPassword: ''
   });
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [enable2fa, setEnable2fa] = useState(false);
+  const [provisioningUri, setProvisioningUri] = useState('');
+  const [totpSecret, setTotpSecret] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -43,44 +49,56 @@ const RegisterForm = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     if (step === 1) {
-      // Validate form
       if (formData.password !== formData.confirmPassword) {
-        alert('Passwords do not match');
+        setError('Passwords do not match.');
         return;
       }
       if (formData.password.length < 8) {
-        alert('Password must be at least 8 characters');
+        setError('Password must be at least 8 characters.');
         return;
       }
-      // In real app, send data to backend and receive OTP
-      // For now, just move to OTP step
-      setStep(2);
-      // Simulate OTP being sent
-      alert('OTP has been sent to your email');
+      setIsSubmitting(true);
+      try {
+        await register(formData.email, formData.password);
+        const loginResponse = await login(formData.email, formData.password);
+        localStorage.setItem('token', loginResponse.access_token);
+        if (enable2fa) {
+          const setup = await setupTotp();
+          setProvisioningUri(setup.provisioning_uri);
+          setTotpSecret(setup.totp_secret);
+          setStep(2);
+        } else {
+          navigate('/dashboard');
+        }
+      } catch (err) {
+        setError('Registration failed. Check if an admin already exists.');
+      } finally {
+        setIsSubmitting(false);
+      }
     } else {
-      // Verify OTP
       const otpCode = otp.join('');
       if (otpCode.length !== 6) {
-        alert('Please enter complete OTP');
+        setError('Please enter the 6-digit code from your authenticator app.');
         return;
       }
-      // In real app, verify OTP with backend
-      // For now, just navigate to login
-      alert('Registration successful! Please login.');
-      navigate('/login');
+      setIsSubmitting(true);
+      try {
+        await verifyTotp(otpCode);
+        navigate('/dashboard');
+      } catch (err) {
+        setError('Invalid TOTP code. Please try again.');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
   const handleBack = () => {
-    if (step === 2) {
-      setStep(1);
-      setOtp(['', '', '', '', '', '']);
-    } else {
-      navigate('/login');
-    }
+    navigate('/login');
   };
 
   return (
@@ -162,12 +180,33 @@ const RegisterForm = () => {
                 required
               />
             </div>
+            <div className="form-group checkbox-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={enable2fa}
+                  onChange={(e) => setEnable2fa(e.target.checked)}
+                />
+                Enable 2FA now (recommended)
+              </label>
+            </div>
           </>
         ) : (
           <>
-            <div className="form-group">
-              <label style={{ textAlign: 'center', display: 'block', marginBottom: '20px' }}>
-                Enter the 6-digit OTP sent to {formData.email}
+            <div className="form-group totp-setup">
+              <label style={{ textAlign: 'center', display: 'block', marginBottom: '12px' }}>
+                Scan this in your authenticator app
+              </label>
+              {provisioningUri && (
+                <a className="totp-link" href={provisioningUri}>
+                  Open authenticator link
+                </a>
+              )}
+              <div className="totp-secret">
+                Secret: <span>{totpSecret}</span>
+              </div>
+              <label style={{ textAlign: 'center', display: 'block', margin: '20px 0 10px' }}>
+                Enter the 6-digit code from your app
               </label>
               <div className="otp-inputs">
                 {otp.map((digit, index) => (
@@ -186,12 +225,13 @@ const RegisterForm = () => {
             </div>
           </>
         )}
+        {error && <div className="form-error">{error}</div>}
 
         <div className="form-actions-register">
           <button type="button" className="btn-back" onClick={handleBack}>
             Back
           </button>
-          <button type="submit" className="btn-primary" style={{ flex: 1 }}>
+          <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={isSubmitting}>
             {step === 1 ? 'Continue' : 'Verify & Register'}
           </button>
         </div>

@@ -28,7 +28,6 @@ const SettingsPage = () => {
       <Header />
       <Sidebar />
       <main className="main-content">
-        <h1>Settings</h1>
         <div className="settings-grid">
           <section className="setting-card">
             <div className="setting-card-content">

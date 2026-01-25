@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faHome,
-  faExclamationTriangle,
+  faListUl,
   faShieldAlt,
   faCog
 } from '@fortawesome/free-solid-svg-icons';
@@ -14,7 +14,7 @@ const Sidebar = () => {
 
   const menuItems = [
     { path: '/dashboard', icon: faHome, label: 'Dashboard' },
-    { path: '/alerts', icon: faExclamationTriangle, label: 'Alerts' },
+    { path: '/logs', icon: faListUl, label: 'Logs' },
     { path: '/precautions', icon: faShieldAlt, label: 'Precautions & Measures' },
     { path: '/settings', icon: faCog, label: 'Settings' }
   ];

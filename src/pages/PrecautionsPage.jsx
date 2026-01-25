@@ -10,7 +10,6 @@ const PrecautionsPage = () => {
       <Header />
       <Sidebar />
       <main className="main-content">
-        <h1>Precautions & Measures</h1>
         <div className="precautions-grid">
           <section className="precaution-card">
             <h2 className="precaution-title">Network Hardening</h2>
