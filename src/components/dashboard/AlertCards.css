@@ -10,11 +10,17 @@
   border: 2px solid rgba(0, 229, 255, 0.4);
   border-radius: 12px;
   padding: 20px;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
 
 .alert-card:hover {
   transform: translateY(-5px);
+}
+
+.alert-card.active {
+  transform: translateY(-4px);
+  box-shadow: 0 0 28px rgba(0, 229, 255, 0.4);
 }
 
 .alert-card-header {

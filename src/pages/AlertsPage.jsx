@@ -57,12 +57,13 @@ const AlertsPage = () => {
       const log = logsMap.get(alert.log_id);
       const sourceIp = log?.metadata?.ip || 'N/A';
       const attackType = alert.classification || alert.alert_type || 'unknown';
+      const normalizedSeverity = alert.severity === 'critical' ? 'high' : alert.severity;
       return {
         id: alert.id,
         timestamp: new Date(alert.created_at).toLocaleString(),
         sourceIP: sourceIp,
         attackType,
-        severity: alert.severity || 'low',
+        severity: normalizedSeverity || 'low',
         status: 'Active',
         description: alert.metadata?.note || alert.metadata?.rule || ''
       };
@@ -140,7 +141,6 @@ const AlertsPage = () => {
               }}
             >
               <option value="">All Severities</option>
-              <option value="critical">Critical</option>
               <option value="high">High</option>
               <option value="medium">Medium</option>
               <option value="low">Low</option>

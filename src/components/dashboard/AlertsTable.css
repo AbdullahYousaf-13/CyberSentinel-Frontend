@@ -73,16 +73,10 @@
   border: 1px solid #FF4444;
 }
 
-.badge-critical {
-  background-color: rgba(123, 0, 20, 0.35);
-  color: #ff3b3b;
-  border: 1px solid #7b0014;
-}
-
 .badge-medium {
-  background-color: rgba(255, 187, 51, 0.2);
-  color: #FFBB33;
-  border: 1px solid #FFBB33;
+  background-color: rgba(255, 136, 0, 0.2);
+  color: #FF8800;
+  border: 1px solid #FF8800;
 }
 
 .badge-low {

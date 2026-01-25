@@ -49,7 +49,7 @@ const LogsPage = () => {
       id: log.id,
       timestamp: new Date(log.timestamp).toLocaleString(),
       source: log.source,
-      severity: log.severity || 'unknown',
+      severity: log.severity === 'critical' ? 'high' : (log.severity || 'unknown'),
       message: log.message,
       ip: log.metadata?.ip || 'N/A'
     }));
@@ -84,7 +84,6 @@ const LogsPage = () => {
             }}
           >
             <option value="">All Severities</option>
-            <option value="critical">Critical</option>
             <option value="high">High</option>
             <option value="medium">Medium</option>
             <option value="low">Low</option>

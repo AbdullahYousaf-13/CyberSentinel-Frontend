@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShieldAlt, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import './AlertCards.css';
 
-const AlertCards = ({ stats }) => {
+const AlertCards = ({ stats, activeFilter, onSelect }) => {
   const cards = [
     {
       title: 'Total Alerts',
@@ -25,8 +25,8 @@ const AlertCards = ({ stats }) => {
       title: 'Medium Severity',
       value: stats.medium,
       icon: faExclamationTriangle,
-      color: '#FFBB33',
-      borderColor: '#FFBB33',
+      color: '#FF8800',
+      borderColor: '#FF8800',
       key: 'medium'
     },
     {
@@ -39,16 +39,27 @@ const AlertCards = ({ stats }) => {
     }
   ];
 
+  const handleKeyDown = (event, key) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onSelect?.(key);
+    }
+  };
+
   return (
     <div className="alert-cards">
       {cards.map((card, index) => (
         <div
           key={index}
-          className="alert-card"
+          className={`alert-card ${activeFilter === card.key ? 'active' : ''}`}
           style={{ 
             borderColor: card.borderColor,
             boxShadow: `0 0 20px ${card.color}66`
           }}
+          role="button"
+          tabIndex={0}
+          onClick={() => onSelect?.(card.key)}
+          onKeyDown={(event) => handleKeyDown(event, card.key)}
         >
           <div className="alert-card-header">
             <FontAwesomeIcon

@@ -131,14 +131,14 @@
 }
 
 .severity-filter-btn.medium {
-  color: #FFBB33;
-  border-color: #FFBB33;
+  color: #FF8800;
+  border-color: #FF8800;
 }
 
 .severity-filter-btn.medium.active,
 .severity-filter-btn.medium:hover {
-  background-color: rgba(255, 187, 51, 0.2);
-  color: #FFBB33;
+  background-color: rgba(255, 136, 0, 0.2);
+  color: #FF8800;
 }
 
 .severity-filter-btn.low {

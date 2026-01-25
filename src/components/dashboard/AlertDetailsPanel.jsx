@@ -6,8 +6,6 @@ const AlertDetailsPanel = ({ isOpen, onClose, alert }) => {
 
   const getSeverityBadgeClass = (severity) => {
     switch (severity?.toLowerCase()) {
-      case 'critical':
-        return 'badge-critical';
       case 'high':
         return 'badge-high';
       case 'medium':

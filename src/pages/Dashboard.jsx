@@ -13,6 +13,7 @@ const Dashboard = () => {
   const [alerts, setAlerts] = useState([]);
   const [logsMap, setLogsMap] = useState(new Map());
   const [error, setError] = useState('');
+  const [activeSeverity, setActiveSeverity] = useState('total');
   const token = localStorage.getItem('token');
 
   const loadAlerts = async () => {
@@ -43,17 +44,30 @@ const Dashboard = () => {
       const log = logsMap.get(alert.log_id);
       const sourceIp = log?.metadata?.ip || 'N/A';
       const attackType = alert.classification || alert.alert_type || 'unknown';
+      const normalizedSeverity = alert.severity === 'critical' ? 'high' : alert.severity;
       return {
         id: alert.id,
         timestamp: new Date(alert.created_at).toLocaleString(),
         sourceIP: sourceIp,
         attackType,
-        severity: alert.severity || 'low',
+        severity: normalizedSeverity || 'low',
         status: 'Active',
         description: alert.metadata?.note || alert.metadata?.rule || ''
       };
     });
   }, [alerts, logsMap]);
+
+  const filteredAlerts = useMemo(() => {
+    if (activeSeverity === 'total') return displayAlerts;
+    if (activeSeverity === 'high') {
+      return displayAlerts.filter((alert) =>
+        ['high', 'critical'].includes(alert.severity.toLowerCase())
+      );
+    }
+    return displayAlerts.filter(
+      (alert) => alert.severity.toLowerCase() === activeSeverity
+    );
+  }, [displayAlerts, activeSeverity]);
 
   const alertStats = useMemo(() => {
     const stats = { total: 0, high: 0, medium: 0, low: 0 };
@@ -73,8 +87,12 @@ const Dashboard = () => {
       <Sidebar />
       <main className="main-content">
         {error && <div className="dashboard-warning">{error}</div>}
-        <AlertCards stats={alertStats} />
-        <AlertsTable alerts={displayAlerts} />
+        <AlertCards
+          stats={alertStats}
+          activeFilter={activeSeverity}
+          onSelect={(key) => setActiveSeverity(key)}
+        />
+        <AlertsTable alerts={filteredAlerts} />
         <div className="charts-container">
           <AttackChart data={attackTrendsData} />
           <ThreatPie data={attackTypeDistribution} />
