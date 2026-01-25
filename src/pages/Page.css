@@ -29,4 +29,11 @@
   }
 }
 
+@media (max-width: 480px) {
+  .main-content {
+    margin-left: 70px;
+    padding: 18px 12px;
+  }
+}
+
 

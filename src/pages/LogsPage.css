@@ -91,3 +91,20 @@
     align-items: flex-start;
   }
 }
+
+@media (max-width: 600px) {
+  .logs-filter-input,
+  .logs-filter-select,
+  .logs-action-btn {
+    width: 100%;
+  }
+
+  .logs-table th,
+  .logs-table td {
+    font-size: 12px;
+  }
+
+  .log-message {
+    max-width: 220px;
+  }
+}

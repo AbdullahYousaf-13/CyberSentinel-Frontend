@@ -28,4 +28,14 @@
   .precautions-grid { grid-template-columns: 1fr; }
 }
 
+@media (max-width: 600px) {
+  .precaution-card {
+    padding: 16px;
+  }
+
+  .precaution-title {
+    font-size: 16px;
+  }
+}
+
 

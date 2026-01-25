@@ -139,4 +139,19 @@
   }
 }
 
+@media (max-width: 600px) {
+  .alerts-search-container {
+    height: auto;
+    padding: 8px 12px;
+  }
+
+  .alerts-search-input {
+    font-size: 13px;
+  }
+
+  .alerts-filter-select {
+    width: 100%;
+  }
+}
+
 

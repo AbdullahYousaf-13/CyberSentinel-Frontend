@@ -31,6 +31,7 @@ const LoginForm = () => {
         formData.totpCode || null
       );
       localStorage.setItem('token', response.access_token);
+      localStorage.setItem('userEmail', formData.email);
       navigate('/dashboard');
     } catch (err) {
       setError('Login failed. Check your email/password or TOTP setup.');

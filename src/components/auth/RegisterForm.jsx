@@ -66,6 +66,7 @@ const RegisterForm = () => {
         await register(formData.email, formData.password);
         const loginResponse = await login(formData.email, formData.password);
         localStorage.setItem('token', loginResponse.access_token);
+        localStorage.setItem('userEmail', formData.email);
         if (enable2fa) {
           const setup = await setupTotp();
           setProvisioningUri(setup.provisioning_uri);
@@ -180,15 +181,18 @@ const RegisterForm = () => {
                 required
               />
             </div>
-            <div className="form-group checkbox-group">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={enable2fa}
-                  onChange={(e) => setEnable2fa(e.target.checked)}
-                />
-                Enable 2FA now (recommended)
-              </label>
+            <div className="form-group toggle-group">
+              <div className="toggle-row">
+                <label className="toggle-label">
+                  <input
+                    type="checkbox"
+                    checked={enable2fa}
+                    onChange={(e) => setEnable2fa(e.target.checked)}
+                  />
+                  <span className="toggle-pill" />
+                </label>
+                <span className="toggle-text">Enable 2FA now (recommended)</span>
+              </div>
             </div>
           </>
         ) : (

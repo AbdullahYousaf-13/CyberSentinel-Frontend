@@ -111,7 +111,7 @@
 .severity-filter-btn {
   background: transparent;
   border: 1px solid;
-  padding: 20px 100px;
+  padding: 12px 24px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
@@ -179,6 +179,16 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
+  }
+
+  .btn-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn,
+  .severity-filter-btn {
+    width: 100%;
   }
 
   .settings-actions {

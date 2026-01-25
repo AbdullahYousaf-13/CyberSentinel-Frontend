@@ -40,6 +40,18 @@
   line-height: 1;
 }
 
+@media (max-width: 1200px) {
+  .alert-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .alert-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .alert-cards {
     grid-template-columns: 1fr;

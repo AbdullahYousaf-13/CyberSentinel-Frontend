@@ -26,7 +26,7 @@ function App() {
         <Route path="/feedback" element={<FeedbackPage />} />
         <Route path="/architecture" element={<ArchitecturePage />} />
         <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );

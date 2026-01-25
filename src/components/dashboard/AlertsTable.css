@@ -73,6 +73,12 @@
   border: 1px solid #FF4444;
 }
 
+.badge-critical {
+  background-color: rgba(123, 0, 20, 0.35);
+  color: #ff3b3b;
+  border: 1px solid #7b0014;
+}
+
 .badge-medium {
   background-color: rgba(255, 187, 51, 0.2);
   color: #FFBB33;
@@ -114,6 +120,19 @@
   .alerts-table th,
   .alerts-table td {
     padding: 10px 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .alerts-table th,
+  .alerts-table td {
+    font-size: 12px;
+    padding: 8px 6px;
+  }
+
+  .details-btn {
+    padding: 6px 10px;
+    font-size: 12px;
   }
 }
 

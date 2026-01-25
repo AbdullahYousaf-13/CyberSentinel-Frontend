@@ -281,3 +281,17 @@
     right: -10px;
   }
 }
+
+@media (max-width: 600px) {
+  .header-title {
+    display: none;
+  }
+
+  .header-title-separator {
+    display: none;
+  }
+
+  .header-left {
+    gap: 10px;
+  }
+}
