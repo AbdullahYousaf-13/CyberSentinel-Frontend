@@ -63,10 +63,16 @@ const RegisterForm = () => {
       }
       setIsSubmitting(true);
       try {
-        await register(formData.email, formData.password);
+        await register(
+          formData.email,
+          formData.password,
+          formData.firstName,
+          formData.lastName
+        );
         const loginResponse = await login(formData.email, formData.password);
         localStorage.setItem('token', loginResponse.access_token);
         localStorage.setItem('userEmail', formData.email);
+        localStorage.setItem('userName', `${formData.firstName} ${formData.lastName}`.trim());
         if (enable2fa) {
           const setup = await setupTotp();
           setProvisioningUri(setup.provisioning_uri);

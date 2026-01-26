@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../../services/api';
+import { fetchMe, login } from '../../services/api';
 import './Auth.css';
 
 const LoginForm = () => {
@@ -32,6 +32,15 @@ const LoginForm = () => {
       );
       localStorage.setItem('token', response.access_token);
       localStorage.setItem('userEmail', formData.email);
+      try {
+        const me = await fetchMe();
+        const fullName = [me.first_name, me.last_name].filter(Boolean).join(' ');
+        if (fullName) {
+          localStorage.setItem('userName', fullName);
+        }
+      } catch (err) {
+        // Ignore profile fetch failures and fall back to email.
+      }
       navigate('/dashboard');
     } catch (err) {
       setError('Login failed. Check your email/password or TOTP setup.');

@@ -33,7 +33,7 @@ const Header = () => {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   // Mock user data
-  const userName = localStorage.getItem('userEmail') || 'User';
+  const userName = localStorage.getItem('userName') || localStorage.getItem('userEmail') || 'User';
 
   // Close dropdowns when clicking outside
   useEffect(() => {

@@ -53,8 +53,13 @@ export const login = async (email, password, totpCode = null) => {
   });
 };
 
-export const register = async (email, password) => {
-  return apiPost('/api/auth/register', { email, password });
+export const register = async (email, password, firstName, lastName) => {
+  return apiPost('/api/auth/register', {
+    email,
+    password,
+    first_name: firstName,
+    last_name: lastName
+  });
 };
 
 export const setupTotp = async () => {
@@ -67,3 +72,5 @@ export const verifyTotp = async (totpCode) => {
 
 export const fetchAlerts = async (params = {}) => apiGet('/api/alerts', params);
 export const fetchLogs = async (params = {}) => apiGet('/api/logs', params);
+
+export const fetchMe = async () => apiGet('/api/auth/me');
