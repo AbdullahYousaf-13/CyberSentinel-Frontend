@@ -197,7 +197,7 @@ const RegisterForm = () => {
                   />
                   <span className="toggle-pill" />
                 </label>
-                <span className="toggle-text">Enable 2FA now (recommended)</span>
+                <span className="toggle-text">Enable 2FA Now (Recommended)</span>
               </div>
             </div>
           </>

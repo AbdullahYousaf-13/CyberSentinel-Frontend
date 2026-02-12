@@ -15,11 +15,11 @@ const Header = () => {
   // Get page title based on route
   const getPageTitle = () => {
     const path = location.pathname;
-    if (path === '/dashboard') return 'CYBERSENTINEL DASHBOARD';
+    if (path === '/dashboard') return 'DASHBOARD';
     if (path === '/logs') return 'LOGS';
     if (path === '/precautions') return 'PRECAUTIONS & MEASURES';
     if (path === '/settings') return 'SETTINGS';
-    return 'CYBERSENTINEL DASHBOARD';
+    return 'DASHBOARD';
   };
 
   // Mock notifications data

@@ -55,6 +55,15 @@ const AlertDetailsPanel = ({ isOpen, onClose, alert }) => {
               <span className="alert-detail-label">Status:</span>
               <span className="alert-detail-value">{alert.status}</span>
             </div>
+            <div className="alert-detail-row">
+              <span className="alert-detail-label">Mark as False Positive:</span>
+              <span className="alert-detail-value false-positive-row">
+                <label className="false-positive-toggle">
+                  <input type="checkbox" className="false-positive-checkbox" />
+                  <span className="false-positive-slider" />
+                </label>
+              </span>
+            </div>
           </div>
           {alert.description && (
             <div className="alert-detail-section">

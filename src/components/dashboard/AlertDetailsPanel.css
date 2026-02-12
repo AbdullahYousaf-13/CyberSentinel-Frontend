@@ -88,6 +88,61 @@
   flex: 1;
 }
 
+.false-positive-row {
+  display: inline-flex;
+  align-items: center;
+}
+
+.false-positive-toggle {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+}
+
+.false-positive-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.false-positive-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #0b1f2f;
+  border: 1px solid rgba(0, 229, 255, 0.6);
+  border-radius: 999px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.false-positive-slider::before {
+  content: "";
+  position: absolute;
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  top: 2px;
+  background: #0fe2ff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.35);
+}
+
+.false-positive-toggle input:checked + .false-positive-slider {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: #00E5FF;
+}
+
+.false-positive-toggle input:checked + .false-positive-slider::before {
+  transform: translateX(24px);
+}
+
+.false-positive-checkbox {
+  width: 16px;
+  height: 16px;
+}
+
 .severity-badge {
   display: inline-block;
   padding: 4px 12px;
