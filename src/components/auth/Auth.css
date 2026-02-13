@@ -55,6 +55,38 @@
   box-sizing: border-box;
 }
 
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 46px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #8b9dc3;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+.password-toggle:hover {
+  color: #00E5FF;
+}
+
 .form-group input::placeholder {
   color: #8b9dc3;
 }
@@ -80,6 +112,23 @@
   padding: 10px 12px;
   border-radius: 8px;
   font-size: 13px;
+  margin-top: 16px;
+}
+
+.form-info {
+  background-color: rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(0, 229, 255, 0.5);
+  color: #c4f5ff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-top: 16px;
+}
+
+.form-note {
+  color: #8b9dc3;
+  font-size: 12px;
+  margin-top: 10px;
 }
 
 .btn-primary {
@@ -314,6 +363,40 @@
 
 .totp-setup {
   text-align: center;
+}
+
+.totp-setup .totp-link-row {
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.totp-setup .totp-secret {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.totp-setup .totp-secret span {
+  color: #ffffff;
+  font-family: "Courier New", monospace;
+  word-break: break-all;
+}
+
+.totp-setup .form-note {
+  max-width: 360px;
+  margin: 0 auto 16px;
+  line-height: 1.4;
+}
+
+.totp-setup .details-btn {
+  padding: 6px 12px;
+}
+
+.totp-setup .otp-inputs {
+  justify-content: center;
 }
 
 .totp-link {

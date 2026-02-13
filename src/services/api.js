@@ -70,6 +70,26 @@ export const verifyTotp = async (totpCode) => {
   return apiPost('/api/auth/2fa/verify', { totp_code: totpCode });
 };
 
+export const disableTotp = async (totpCode) => {
+  return apiPost('/api/auth/2fa/disable', { totp_code: totpCode });
+};
+
+export const verifyEmail = async (token) => {
+  return apiGet('/api/auth/verify-email', { token });
+};
+
+export const requestPasswordReset = async (email) => {
+  return apiPost('/api/auth/password/forgot', { email });
+};
+
+export const verifyPasswordResetCode = async (email, code) => {
+  return apiPost('/api/auth/password/verify', { email, code });
+};
+
+export const resetPassword = async (email, code, newPassword) => {
+  return apiPost('/api/auth/password/reset', { email, code, new_password: newPassword });
+};
+
 export const fetchAlerts = async (params = {}) => apiGet('/api/alerts', params);
 export const fetchLogs = async (params = {}) => apiGet('/api/logs', params);
 
