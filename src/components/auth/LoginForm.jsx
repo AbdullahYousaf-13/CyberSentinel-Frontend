@@ -66,14 +66,20 @@ const LoginForm = () => {
 
   return (
     <div className="login-container">
+      <img
+        src={`${process.env.PUBLIC_URL}/cybersentinel-logo.png`}
+        alt=""
+        aria-hidden="true"
+        className="login-watermark"
+      />
       <div className="login-header">
-        <h1>CYBERSENTINEL</h1>
-        <p className="login-subtitle">Secure Your Digital Frontier</p>
+        <h1>CyberSentinel</h1>
+        <p className="login-caption">AI-Driven Security for Intrusion Detection</p>
       </div>
       
       <form className="login-form" onSubmit={handleAccessSystem}>
         <div className="form-group">
-          <label htmlFor="email">Email Address</label>
+          <label htmlFor="email">Username*</label>
           <input
             type="email"
             id="email"
@@ -86,7 +92,7 @@ const LoginForm = () => {
         </div>
         
         <div className="form-group">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">Password*</label>
           <div className="password-field">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -150,6 +156,7 @@ const LoginForm = () => {
             Forgot Password?
           </button>
         </div>
+        <p className="login-footer">Secured by CyberSentinel AI - v2.01</p>
       </form>
     </div>
   );

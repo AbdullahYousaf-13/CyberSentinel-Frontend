@@ -1,15 +1,32 @@
 .auth-page {
+  position: relative;
+  overflow: hidden;
   min-height: 100vh;
-  background-color: #0A0F1F;
+  background-color: #02091d;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background-image: radial-gradient(circle at 20% 50%, rgba(0, 229, 255, 0.05) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 80%, rgba(0, 229, 255, 0.05) 0%, transparent 50%);
+  background-image:
+    linear-gradient(rgba(21, 73, 124, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(21, 73, 124, 0.2) 1px, transparent 1px),
+    radial-gradient(circle at 50% 40%, rgba(0, 164, 234, 0.04), transparent 52%);
+  background-size: 42px 42px, 42px 42px, auto;
+}
+
+.auth-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(0, 150, 220, 0.09) 0, rgba(0, 150, 220, 0.01) 14%, transparent 30%, transparent 70%, rgba(0, 150, 220, 0.01) 86%, rgba(0, 150, 220, 0.09) 100%),
+    radial-gradient(circle at center, rgba(2, 10, 30, 0.16) 42%, rgba(2, 10, 30, 0.84) 100%);
 }
 
 .auth-container {
+  position: relative;
+  z-index: 1;
   width: 100%;
   display: flex;
   justify-content: center;

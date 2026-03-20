@@ -1,13 +1,13 @@
-.dashboard-layout {
+.dashboard-page-layout {
   min-height: 100vh;
   background-color: #0A0F1F;
 }
 
-.main-content {
+.dashboard-main-content {
   background-color: #0A0F1F;
 }
 
-.main-content {
+.dashboard-main-content {
   margin-left: 250px;
   margin-top: 70px;
   padding: 30px;
@@ -58,14 +58,14 @@
 }
 
 @media (max-width: 768px) {
-  .main-content {
+  .dashboard-main-content {
     margin-left: 70px;
     padding: 20px 15px;
   }
 }
 
 @media (max-width: 480px) {
-  .main-content {
+  .dashboard-main-content {
     margin-left: 70px;
     padding: 18px 12px;
   }

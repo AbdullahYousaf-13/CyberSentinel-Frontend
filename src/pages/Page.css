@@ -1,13 +1,11 @@
 .dashboard-layout {
-  min-height: 100vh;
   background-color: #0A0F1F;
 }
 
 .main-content {
   margin-left: 250px;
-  margin-top: 70px;
-  padding: 30px;
-  min-height: calc(100vh - 70px);
+  margin-top: 0;
+  padding: 100px 30px 30px;
   background-color: #0A0F1F;
 }
 
@@ -25,14 +23,14 @@
 @media (max-width: 768px) {
   .main-content {
     margin-left: 70px;
-    padding: 20px 15px;
+    padding: 90px 15px 20px;
   }
 }
 
 @media (max-width: 480px) {
   .main-content {
     margin-left: 70px;
-    padding: 18px 12px;
+    padding: 88px 12px 18px;
   }
 }
 

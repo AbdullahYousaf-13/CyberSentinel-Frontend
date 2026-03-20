@@ -1,3 +1,7 @@
+.logs-main-content {
+  min-height: auto;
+}
+
 .logs-filters {
   display: flex;
   gap: 12px;
@@ -58,6 +62,12 @@
 .logs-table td {
   padding: 12px 0;
   border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+}
+
+.logs-empty {
+  text-align: center;
+  color: #8b9dc3;
+  padding: 16px 0;
 }
 
 .log-id {

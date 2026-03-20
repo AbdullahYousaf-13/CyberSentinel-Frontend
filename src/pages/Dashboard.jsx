@@ -127,10 +127,10 @@ const Dashboard = () => {
   }, [allAlerts]);
 
   return (
-    <div className="dashboard-layout">
+    <div className="dashboard-layout dashboard-page-layout">
       <Header />
       <Sidebar />
-      <main className="main-content">
+      <main className="main-content dashboard-main-content">
         {error && <div className="dashboard-warning">{error}</div>}
         <AlertCards
           stats={alertStats}
