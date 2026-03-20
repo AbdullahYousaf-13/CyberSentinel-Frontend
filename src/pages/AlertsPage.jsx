@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faSync, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faDownload } from '@fortawesome/free-solid-svg-icons';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import AlertsTable from '../components/dashboard/AlertsTable';
@@ -158,12 +158,11 @@ const AlertsPage = () => {
               <option value="anomaly">Anomaly</option>
               <option value="benign">Benign</option>
             </select>
-          </div>
-          <div className="alerts-action-buttons">
-            <button className="action-btn" onClick={handleRefresh}>
-              <FontAwesomeIcon icon={faSync} />
+            <button className="logs-action-btn" onClick={handleRefresh}>
               Refresh
             </button>
+          </div>
+          <div className="alerts-action-buttons">
             <button className="action-btn" onClick={handleDownloadCSV}>
               <FontAwesomeIcon icon={faDownload} />
               Download CSV
@@ -181,7 +180,7 @@ const AlertsPage = () => {
             onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
             disabled={offset === 0}
           >
-            Prev
+            Previous Page
           </button>
           <span className="pagination-info">
             Page {Math.floor(offset / PAGE_SIZE) + 1}
@@ -191,7 +190,7 @@ const AlertsPage = () => {
             onClick={() => setOffset(offset + PAGE_SIZE)}
             disabled={alerts.length < PAGE_SIZE}
           >
-            Next
+            Next Page
           </button>
         </div>
       </main>
