@@ -1,6 +1,7 @@
 .dashboard-page-layout {
   min-height: 100vh;
   background-color: #0A0F1F;
+  overflow: hidden;
 }
 
 .dashboard-main-content {
@@ -10,8 +11,11 @@
 .dashboard-main-content {
   margin-left: 250px;
   margin-top: 70px;
+  height: calc(100vh - 70px);
   padding: 30px;
   min-height: calc(100vh - 70px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .charts-container {
@@ -60,6 +64,8 @@
 @media (max-width: 768px) {
   .dashboard-main-content {
     margin-left: 70px;
+    margin-top: 70px;
+    height: calc(100vh - 70px);
     padding: 20px 15px;
   }
 }
@@ -67,6 +73,8 @@
 @media (max-width: 480px) {
   .dashboard-main-content {
     margin-left: 70px;
+    margin-top: 70px;
+    height: calc(100vh - 70px);
     padding: 18px 12px;
   }
 }
