@@ -4,6 +4,19 @@
   box-sizing: border-box;
 }
 
+:root {
+  --cs-header-height: 70px;
+  --cs-sidebar-width: 250px;
+  --cs-sidebar-width-mobile: 64px;
+  --cs-sidebar-width-xs: 56px;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -13,6 +26,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #0A0F1F;
   color: #ffffff;
+  overflow-x: hidden;
 }
 
 /* Global container border style */
@@ -28,7 +42,13 @@ code {
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: #0A0F1F;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 /* Scrollbar styling */

@@ -1,17 +1,19 @@
 .dashboard-layout {
   background-color: #0A0F1F;
   min-height: 100vh;
-  overflow: hidden;
+  min-height: 100dvh;
+  overflow-x: hidden;
 }
 
 .main-content {
-  margin-left: 250px;
-  margin-top: 70px;
-  height: calc(100vh - 70px);
-  min-height: calc(100vh - 70px);
+  margin-left: var(--cs-sidebar-width);
+  margin-top: var(--cs-header-height);
+  min-height: calc(100vh - var(--cs-header-height));
+  min-height: calc(100dvh - var(--cs-header-height));
   padding: 30px;
   overflow-y: auto;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   background-color: #0A0F1F;
 }
 
@@ -28,21 +30,15 @@
 
 @media (max-width: 768px) {
   .main-content {
-    margin-left: 70px;
-    margin-top: 70px;
-    height: calc(100vh - 70px);
-    min-height: calc(100vh - 70px);
-    padding: 20px 15px;
+    margin-left: 0;
+    padding: 20px 14px 92px;
   }
 }
 
 @media (max-width: 480px) {
   .main-content {
-    margin-left: 70px;
-    margin-top: 70px;
-    height: calc(100vh - 70px);
-    min-height: calc(100vh - 70px);
-    padding: 18px 12px;
+    margin-left: 0;
+    padding: 16px 10px 88px;
   }
 }
 

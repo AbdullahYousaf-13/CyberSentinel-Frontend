@@ -1,7 +1,8 @@
 .dashboard-page-layout {
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: #0A0F1F;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .dashboard-main-content {
@@ -9,13 +10,14 @@
 }
 
 .dashboard-main-content {
-  margin-left: 250px;
-  margin-top: 70px;
-  height: calc(100vh - 70px);
+  margin-left: var(--cs-sidebar-width);
+  margin-top: var(--cs-header-height);
+  min-height: calc(100vh - var(--cs-header-height));
+  min-height: calc(100dvh - var(--cs-header-height));
   padding: 30px;
-  min-height: calc(100vh - 70px);
   overflow-y: auto;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .charts-container {
@@ -63,19 +65,15 @@
 
 @media (max-width: 768px) {
   .dashboard-main-content {
-    margin-left: 70px;
-    margin-top: 70px;
-    height: calc(100vh - 70px);
-    padding: 20px 15px;
+    margin-left: 0;
+    padding: 20px 14px 92px;
   }
 }
 
 @media (max-width: 480px) {
   .dashboard-main-content {
-    margin-left: 70px;
-    margin-top: 70px;
-    height: calc(100vh - 70px);
-    padding: 18px 12px;
+    margin-left: 0;
+    padding: 16px 10px 88px;
   }
 }
 

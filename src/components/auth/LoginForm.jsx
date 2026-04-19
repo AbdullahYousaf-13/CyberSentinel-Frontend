@@ -74,7 +74,7 @@ const LoginForm = () => {
       />
       <div className="login-header">
         <h1>CyberSentinel</h1>
-        <p className="login-caption">AI-Driven Security for Intrusion Detection</p>
+        <p className="login-caption">AI-Driven Intrusion Detection System</p>
       </div>
       
       <form className="login-form" onSubmit={handleAccessSystem}>

@@ -1,12 +1,15 @@
 .auth-page {
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: #02091d;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
+  padding-top: calc(20px + env(safe-area-inset-top));
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
   background-image:
     linear-gradient(rgba(21, 73, 124, 0.2) 1px, transparent 1px),
     linear-gradient(90deg, rgba(21, 73, 124, 0.2) 1px, transparent 1px),
@@ -31,6 +34,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+@media (max-width: 768px) {
+  .auth-page {
+    align-items: flex-start;
+    padding: 16px;
+    padding-top: calc(16px + env(safe-area-inset-top));
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
 }
 
 
