@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setupTotp, verifyTotp } from '../services/api';
+import AuthScaleFit from '../components/auth/AuthScaleFit';
 import './AuthPage.css';
 import '../components/auth/Auth.css';
 
@@ -90,77 +91,79 @@ const TwoFactorSetupPage = () => {
   return (
     <div className="auth-page">
       <div className="auth-container">
-        <div className="registration-container">
-          <div className="registration-header">
-            <h2>Enable Two-Factor Authentication</h2>
-          </div>
+        <AuthScaleFit>
+          <div className="registration-container">
+            <div className="registration-header">
+              <h2>Enable Two-Factor Authentication</h2>
+            </div>
 
-          <form onSubmit={handleVerify}>
-            <div className="form-group totp-setup">
-              {provisioningUri && (
-                <div className="totp-link-row">
-                  <a className="totp-link" href={provisioningUri} target="_blank" rel="noreferrer">
-                    Open Authenticator Link
-                  </a>
-                  <button
-                    type="button"
-                    className="details-btn"
-                    onClick={() => handleCopy(provisioningUri, 'Link')}
-                  >
-                    Copy Link
-                  </button>
+            <form onSubmit={handleVerify}>
+              <div className="form-group totp-setup">
+                {provisioningUri && (
+                  <div className="totp-link-row">
+                    <a className="totp-link" href={provisioningUri} target="_blank" rel="noreferrer">
+                      Open Authenticator Link
+                    </a>
+                    <button
+                      type="button"
+                      className="details-btn"
+                      onClick={() => handleCopy(provisioningUri, 'Link')}
+                    >
+                      Copy Link
+                    </button>
+                  </div>
+                )}
+                {totpSecret && (
+                  <div className="totp-secret">
+                    Secret: <span>{totpSecret}</span>
+                    <button
+                      type="button"
+                      className="details-btn"
+                      onClick={() => handleCopy(totpSecret, 'Secret')}
+                      style={{ marginLeft: '12px' }}
+                    >
+                      Copy Secret
+                    </button>
+                  </div>
+                )}
+                <p className="form-note">
+                  If the link does not open, add a new account in your authenticator app and paste the
+                  secret manually.
+                </p>
+                <label style={{ textAlign: 'center', display: 'block', margin: '20px 0 10px' }}>
+                  Enter the 6-digit code from your app
+                </label>
+                <div className="otp-inputs">
+                  {otp.map((digit, index) => (
+                    <input
+                      key={index}
+                      type="text"
+                      maxLength="1"
+                      value={digit}
+                      ref={(el) => (otpRefs.current[index] = el)}
+                      onChange={(e) => handleOtpChange(e, index)}
+                      onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                      className="otp-digit"
+                      required
+                    />
+                  ))}
                 </div>
-              )}
-              {totpSecret && (
-                <div className="totp-secret">
-                  Secret: <span>{totpSecret}</span>
-                  <button
-                    type="button"
-                    className="details-btn"
-                    onClick={() => handleCopy(totpSecret, 'Secret')}
-                    style={{ marginLeft: '12px' }}
-                  >
-                    Copy Secret
-                  </button>
-                </div>
-              )}
-              <p className="form-note">
-                If the link does not open, add a new account in your authenticator app and paste the
-                secret manually.
-              </p>
-              <label style={{ textAlign: 'center', display: 'block', margin: '20px 0 10px' }}>
-                Enter the 6-digit code from your app
-              </label>
-              <div className="otp-inputs">
-                {otp.map((digit, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    maxLength="1"
-                    value={digit}
-                    ref={(el) => (otpRefs.current[index] = el)}
-                    onChange={(e) => handleOtpChange(e, index)}
-                    onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                    className="otp-digit"
-                    required
-                  />
-                ))}
               </div>
-            </div>
 
-            {error && <div className="form-error">{error}</div>}
-            {copyMessage && <div className="form-info">{copyMessage}</div>}
+              {error && <div className="form-error">{error}</div>}
+              {copyMessage && <div className="form-info">{copyMessage}</div>}
 
-            <div className="form-actions-register">
-              <button type="button" className="btn-back" onClick={handleBack}>
-                Back
-              </button>
-              <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={isSubmitting}>
-                Verify & Enable
-              </button>
-            </div>
-          </form>
-        </div>
+              <div className="form-actions-register">
+                <button type="button" className="btn-back" onClick={handleBack}>
+                  Back
+                </button>
+                <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={isSubmitting}>
+                  Verify & Enable
+                </button>
+              </div>
+            </form>
+          </div>
+        </AuthScaleFit>
       </div>
     </div>
   );

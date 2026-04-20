@@ -5,8 +5,8 @@
   border: 1px solid rgba(33, 220, 255, 0.68);
   border-radius: 14px;
   padding: 108px 36px 26px;
-  max-width: 420px;
-  width: 100%;
+  width: 420px;
+  max-width: 100%;
   margin-inline: auto;
   box-shadow: 0 0 26px rgba(0, 212, 255, 0.26), 0 0 60px rgba(0, 70, 120, 0.48);
 }
@@ -307,8 +307,8 @@
   border: 1px solid rgba(0, 229, 255, 0.4);
   border-radius: 12px;
   padding: 50px 40px;
-  max-width: 500px;
-  width: 100%;
+  width: 500px;
+  max-width: 100%;
   margin-inline: auto;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
@@ -553,8 +553,8 @@
   background-color: #0f1629;
   border-radius: 12px;
   padding: 40px;
-  max-width: 450px;
-  width: 100%;
+  width: 450px;
+  max-width: 100%;
   margin-inline: auto;
   border: 1px solid rgba(0, 229, 255, 0.4);
 }
@@ -600,91 +600,3 @@
   box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
 }
 
-@media (max-width: 768px) {
-  .login-container,
-  .registration-container {
-    padding: 30px 20px;
-  }
-
-  .login-container {
-    padding-top: 96px;
-  }
-
-  .login-watermark {
-    top: -16px;
-    width: 154px;
-  }
-
-  .login-header h1 {
-    font-size: 32px;
-  }
-
-  .otp-digit,
-  .two-factor-digit {
-    width: 45px;
-    height: 55px;
-    font-size: 20px;
-  }
-
-  .form-actions-register {
-    flex-direction: column;
-  }
-
-  .form-actions-register .btn-back,
-  .form-actions-register .btn-primary {
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .login-container,
-  .registration-container,
-  .auth-form {
-    padding: 24px 14px;
-  }
-
-  .login-container {
-    padding-top: 84px;
-  }
-
-  .login-watermark {
-    width: 132px;
-  }
-
-  .login-header h1 {
-    font-size: 28px;
-  }
-
-  .login-caption {
-    font-size: 12px;
-  }
-
-  .otp-inputs,
-  .two-factor-inputs {
-    gap: 8px;
-  }
-
-  .otp-digit,
-  .two-factor-digit {
-    width: 38px;
-    height: 48px;
-    font-size: 18px;
-  }
-
-  .step-indicator {
-    gap: 8px;
-  }
-
-  .step {
-    width: 26px;
-    height: 26px;
-    font-size: 12px;
-  }
-
-  .btn-back,
-  .btn-primary,
-  .btn-secondary {
-    padding: 12px;
-    font-size: 14px;
-  }
-}

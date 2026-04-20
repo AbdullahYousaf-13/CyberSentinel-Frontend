@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { verifyEmail } from '../services/api';
+import AuthScaleFit from '../components/auth/AuthScaleFit';
 import './AuthPage.css';
 import '../components/auth/Auth.css';
 
@@ -39,20 +40,22 @@ const EmailVerifyPage = () => {
   return (
     <div className="auth-page">
       <div className="auth-container">
-        <div className="registration-container">
-          <div className="registration-header">
-            <h2>Email Verification</h2>
-            <p>{status === 'success' ? 'Success' : status === 'error' ? 'Error' : 'Please wait'}</p>
-          </div>
-          <div className={status === 'error' ? 'form-error' : 'form-info'}>{message}</div>
-          {status === 'error' && (
-            <div className="form-actions-register">
-              <button type="button" className="btn-primary" onClick={() => navigate('/login')}>
-                Back To Login
-              </button>
+        <AuthScaleFit>
+          <div className="registration-container">
+            <div className="registration-header">
+              <h2>Email Verification</h2>
+              <p>{status === 'success' ? 'Success' : status === 'error' ? 'Error' : 'Please wait'}</p>
             </div>
-          )}
-        </div>
+            <div className={status === 'error' ? 'form-error' : 'form-info'}>{message}</div>
+            {status === 'error' && (
+              <div className="form-actions-register">
+                <button type="button" className="btn-primary" onClick={() => navigate('/login')}>
+                  Back To Login
+                </button>
+              </div>
+            )}
+          </div>
+        </AuthScaleFit>
       </div>
     </div>
   );
