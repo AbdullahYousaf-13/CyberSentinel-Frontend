@@ -5,16 +5,20 @@ import AlertCards from '../components/dashboard/AlertCards';
 import AlertsTable from '../components/dashboard/AlertsTable';
 import AttackChart from '../components/dashboard/AttackChart';
 import ThreatPie from '../components/dashboard/ThreatPie';
-import { fetchAlerts, fetchLogs } from '../services/api';
-import { attackTrendsData, attackTypeDistribution } from '../data/mockData';
+import { fetchAlertAnalytics, fetchAlerts, fetchLogs } from '../services/api';
 import { mapAlertToDisplay } from '../utils/securityViewMappers';
 import './Dashboard.css';
 
 const PAGE_SIZE = 10;
+const ATTACK_TYPE_COLORS = ['#FF4444', '#FF8800', '#FFBB33', '#00C851', '#00E5FF', '#8B5CF6', '#F472B6'];
 
 const Dashboard = () => {
   const [allAlerts, setAllAlerts] = useState([]);
   const [logsMap, setLogsMap] = useState(new Map());
+  const [analytics, setAnalytics] = useState({
+    trend: { unit: 'day', points: [] },
+    distribution: []
+  });
   const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -59,9 +63,10 @@ const Dashboard = () => {
     setIsLoading(true);
     setError('');
     try {
-      const [alertsData, logsData] = await Promise.all([
+      const [alertsData, logsData, analyticsData] = await Promise.all([
         fetchAllAlerts(),
-        fetchAllLogs()
+        fetchAllLogs(),
+        fetchAlertAnalytics()
       ]);
       const map = new Map();
       logsData.forEach((log) => {
@@ -69,6 +74,12 @@ const Dashboard = () => {
       });
       setLogsMap(map);
       setAllAlerts(alertsData);
+      setAnalytics(
+        analyticsData || {
+          trend: { unit: 'day', points: [] },
+          distribution: []
+        }
+      );
     } catch (err) {
       setError('Failed to load dashboard alerts.');
     } finally {
@@ -115,6 +126,23 @@ const Dashboard = () => {
     return stats;
   }, [allAlerts]);
 
+  const attackTrendsData = useMemo(() => {
+    const points = analytics?.trend?.points || [];
+    return points.map((point) => ({
+      time: point.label,
+      attacks: point.count
+    }));
+  }, [analytics]);
+
+  const attackTypeDistribution = useMemo(() => {
+    const categories = analytics?.distribution || [];
+    return categories.map((entry, index) => ({
+      name: entry.label,
+      value: entry.count,
+      color: ATTACK_TYPE_COLORS[index % ATTACK_TYPE_COLORS.length]
+    }));
+  }, [analytics]);
+
   return (
     <div className="dashboard-layout dashboard-page-layout">
       <Header />
@@ -129,7 +157,7 @@ const Dashboard = () => {
             setActiveSeverity(key);
           }}
         />
-        {isLoading ? <div className="dashboard-warning">Loading alerts...</div> : <AlertsTable alerts={pagedAlerts} />}
+        {isLoading ? <div className="dashboard-warning">Loading alerts...</div> : <AlertsTable alerts={pagedAlerts} showSeverity />}
         <div className="dashboard-controls">
           <button className="dashboard-btn" onClick={loadAlerts}>
             Refresh

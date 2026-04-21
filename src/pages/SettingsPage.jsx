@@ -1,9 +1,31 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
-import { disableTotp, fetchMe, setupTotp, verifyTotp } from '../services/api';
+import {
+  disableTotp,
+  fetchMe,
+  setupTotp,
+  updateNotificationPreferences,
+  verifyTotp
+} from '../services/api';
 import './Page.css';
 import './Settings.css';
+
+const DEFAULT_SEVERITIES = ['high', 'medium', 'low'];
+const PAKISTAN_TIMEZONE = 'Asia/Karachi';
+
+const mapSeveritiesToState = (severities = DEFAULT_SEVERITIES) => ({
+  high: severities.includes('high'),
+  medium: severities.includes('medium'),
+  low: severities.includes('low')
+});
+
+const extractErrorMessage = (err, fallback) => {
+  if (!err || typeof err.message !== 'string') return fallback;
+  const message = err.message.trim();
+  if (!message) return fallback;
+  return message;
+};
 
 const SettingsPage = () => {
   const [twoFAEnabled, setTwoFAEnabled] = useState(false);
@@ -17,18 +39,30 @@ const SettingsPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const otpRefs = useRef([]);
   const [copyMessage, setCopyMessage] = useState('');
-  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailNotifications, setEmailNotifications] = useState(false);
   const [saveToast, setSaveToast] = useState('');
-  const [frequency, setFrequency] = useState('immediate'); // 'immediate' | 'daily'
-  const [severityFilters, setSeverityFilters] = useState({
-    high: true,
-    medium: true,
-    low: true
-  });
+  const [prefsError, setPrefsError] = useState('');
+  const [frequency, setFrequency] = useState('immediate');
+  const [timezoneName, setTimezoneName] = useState(PAKISTAN_TIMEZONE);
+  const [severityFilters, setSeverityFilters] = useState(mapSeveritiesToState(DEFAULT_SEVERITIES));
 
   useEffect(() => {
     fetchMe()
-      .then((me) => setTwoFAEnabled(Boolean(me.is_2fa_enabled)))
+      .then((me) => {
+        setTwoFAEnabled(Boolean(me.is_2fa_enabled));
+        setEmailVerified(Boolean(me.email_verified));
+        const prefs = me.notification_prefs || {};
+        setEmailNotifications(Boolean(prefs.email_enabled));
+        setFrequency(prefs.frequency === 'daily' ? 'daily' : 'immediate');
+        const severities = Array.isArray(prefs.severities) && prefs.severities.length > 0
+          ? prefs.severities
+          : DEFAULT_SEVERITIES;
+        setSeverityFilters(mapSeveritiesToState(severities));
+        setTimezoneName(typeof prefs.timezone === 'string' && prefs.timezone.trim()
+          ? prefs.timezone
+          : PAKISTAN_TIMEZONE);
+      })
       .catch(() => {
         // ignore
       });
@@ -132,14 +166,53 @@ const SettingsPage = () => {
     }
   };
 
+  const handleEmailNotificationsToggle = () => {
+    setPrefsError('');
+    if (!emailNotifications && !emailVerified) {
+      setPrefsError('Verify your email address before enabling email notifications.');
+      return;
+    }
+    setEmailNotifications((prev) => !prev);
+  };
+
   const toggleSeverity = (key) => {
+    if (!emailNotifications) return;
     setSeverityFilters((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleSave = () => {
-    // Persist settings to API/storage (mock)
-    setSaveToast('Settings saved successfully.');
-    setTimeout(() => setSaveToast(''), 2000);
+  const handleSave = async () => {
+    setPrefsError('');
+    const selectedSeverities = Object.entries(severityFilters)
+      .filter(([, enabled]) => enabled)
+      .map(([severity]) => severity);
+
+    if (emailNotifications && selectedSeverities.length === 0) {
+      setPrefsError('Select at least one severity when email notifications are enabled.');
+      return;
+    }
+    if (emailNotifications && !emailVerified) {
+      setPrefsError('Verify your email address before enabling email notifications.');
+      return;
+    }
+
+    const payload = {
+      email_enabled: emailNotifications,
+      frequency,
+      severities: selectedSeverities.length > 0 ? selectedSeverities : DEFAULT_SEVERITIES,
+      timezone: PAKISTAN_TIMEZONE
+    };
+
+    try {
+      const savedPrefs = await updateNotificationPreferences(payload);
+      setTimezoneName(savedPrefs.timezone || payload.timezone);
+      setEmailNotifications(Boolean(savedPrefs.email_enabled));
+      setFrequency(savedPrefs.frequency === 'daily' ? 'daily' : 'immediate');
+      setSeverityFilters(mapSeveritiesToState(savedPrefs.severities || DEFAULT_SEVERITIES));
+      setSaveToast('Settings saved successfully.');
+      setTimeout(() => setSaveToast(''), 2000);
+    } catch (err) {
+      setPrefsError(extractErrorMessage(err, 'Failed to save notification settings.'));
+    }
   };
 
   return (
@@ -239,33 +312,84 @@ const SettingsPage = () => {
             <div className="setting-card-content">
               <h2>Email Notifications</h2>
               <p className="muted">Receive updates and alerts via email.</p>
+              {!emailVerified && (
+                <p className="muted settings-helper">Verify your email to enable alert notifications.</p>
+              )}
+              <p className="muted settings-helper">Timezone: {timezoneName}</p>
             </div>
             <label className="switch">
-              <input type="checkbox" checked={emailNotifications} onChange={() => setEmailNotifications(!emailNotifications)} />
+              <input
+                type="checkbox"
+                checked={emailNotifications}
+                onChange={handleEmailNotificationsToggle}
+                aria-label="Email notifications toggle"
+              />
               <span className="slider" />
             </label>
           </section>
 
-          <section className="setting-card">
+          <section className={`setting-card ${!emailNotifications ? 'is-disabled' : ''}`}>
             <div className="setting-card-content">
               <h2>Alert Frequency</h2>
               <div className="btn-group">
-                <button className={`btn ${frequency === 'immediate' ? 'active' : ''}`} onClick={() => setFrequency('immediate')}>Immediate</button>
-                <button className={`btn ${frequency === 'daily' ? 'active' : ''}`} onClick={() => setFrequency('daily')}>Daily Digest</button>
+                <button
+                  className={`btn ${frequency === 'immediate' ? 'active' : ''}`}
+                  onClick={() => setFrequency('immediate')}
+                  disabled={!emailNotifications}
+                >
+                  Immediate
+                </button>
+                <button
+                  className={`btn ${frequency === 'daily' ? 'active' : ''}`}
+                  onClick={() => setFrequency('daily')}
+                  disabled={!emailNotifications}
+                >
+                  Daily Digest
+                </button>
               </div>
+              {!emailNotifications && (
+                <p className="muted settings-helper">Enable notifications to edit alert frequency.</p>
+              )}
             </div>
           </section>
 
-          <section className="setting-card">
+          <section className={`setting-card ${!emailNotifications ? 'is-disabled' : ''}`}>
             <div className="setting-card-content">
               <h2>Severity Filter</h2>
               <div className="btn-group">
-                <button className={`severity-filter-btn high ${severityFilters.high ? 'active' : ''}`} onClick={() => toggleSeverity('high')}>High Severity</button>
-                <button className={`severity-filter-btn medium ${severityFilters.medium ? 'active' : ''}`} onClick={() => toggleSeverity('medium')}>Medium Severity</button>
-                <button className={`severity-filter-btn low ${severityFilters.low ? 'active' : ''}`} onClick={() => toggleSeverity('low')}>Low Severity</button>
+                <button
+                  className={`severity-filter-btn high ${severityFilters.high ? 'active' : ''}`}
+                  onClick={() => toggleSeverity('high')}
+                  disabled={!emailNotifications}
+                >
+                  High Severity
+                </button>
+                <button
+                  className={`severity-filter-btn medium ${severityFilters.medium ? 'active' : ''}`}
+                  onClick={() => toggleSeverity('medium')}
+                  disabled={!emailNotifications}
+                >
+                  Medium Severity
+                </button>
+                <button
+                  className={`severity-filter-btn low ${severityFilters.low ? 'active' : ''}`}
+                  onClick={() => toggleSeverity('low')}
+                  disabled={!emailNotifications}
+                >
+                  Low Severity
+                </button>
               </div>
+              {!emailNotifications && (
+                <p className="muted settings-helper">Enable notifications to edit severity filters.</p>
+              )}
             </div>
           </section>
+
+          {prefsError && (
+            <div className="toast" role="alert" aria-live="assertive">
+              {prefsError}
+            </div>
+          )}
           {saveToast && (
             <div className="toast toast-success" role="status" aria-live="polite">
               {saveToast}
@@ -282,5 +406,3 @@ const SettingsPage = () => {
 };
 
 export default SettingsPage;
-
-

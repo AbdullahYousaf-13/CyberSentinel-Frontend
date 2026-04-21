@@ -66,6 +66,7 @@ const AlertsPage = () => {
       a.id.toLowerCase().includes(query) ||
       a.alertType.toLowerCase().includes(query) ||
       a.classification.toLowerCase().includes(query) ||
+      a.severity.toLowerCase().includes(query) ||
       a.modelVersion.toLowerCase().includes(query) ||
       a.aiScore.toLowerCase().includes(query)
     );
@@ -78,12 +79,13 @@ const AlertsPage = () => {
   const handleDownloadCSV = () => {
     // CSV download logic
     const csvContent = [
-      ['Alert ID', 'Detected At', 'Alert Type', 'Classification', 'AI Score', 'Model Version'].join(','),
+      ['Alert ID', 'Detected At', 'Alert Type', 'Classification', 'Severity', 'AI Score', 'Model Version'].join(','),
       ...filtered.map(a => [
         a.id,
         a.detectedAt,
         a.alertType,
         a.classification,
+        a.severity,
         a.aiScore,
         a.modelVersion
       ].join(','))
@@ -115,7 +117,7 @@ const AlertsPage = () => {
             <FontAwesomeIcon icon={faSearch} className="search-icon" />
             <input
               type="text"
-              placeholder="Search by alert ID, type, classification, score, or model"
+              placeholder="Search by alert ID, type, classification, severity, score, or model"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="alerts-search-input"
@@ -146,7 +148,6 @@ const AlertsPage = () => {
               <option value="">All Types</option>
               <option value="known_attack">Known Attack</option>
               <option value="anomaly">Anomaly</option>
-              <option value="benign">Benign</option>
             </select>
             <button className="logs-action-btn" onClick={handleRefresh}>
               Refresh
@@ -162,7 +163,7 @@ const AlertsPage = () => {
         {isLoading ? (
           <div className="alerts-warning">Loading alerts...</div>
         ) : (
-          <AlertsTable alerts={filtered} />
+          <AlertsTable alerts={filtered} showSeverity />
         )}
         <div className="alerts-pagination">
           <button

@@ -86,6 +86,15 @@
   background-color: #1a2332;
 }
 
+.header-icon-btn.is-muted {
+  color: rgba(139, 157, 195, 0.55);
+}
+
+.header-icon-btn.is-muted:hover {
+  background-color: rgba(26, 35, 50, 0.35);
+  color: rgba(139, 157, 195, 0.8);
+}
+
 .notification-badge {
   position: absolute;
   top: 5px;
@@ -155,6 +164,7 @@
 }
 
 .notification-item {
+  position: relative;
   padding: 15px 20px;
   border-bottom: 1px solid rgba(0, 229, 255, 0.1);
   transition: background-color 0.2s ease;
@@ -190,6 +200,15 @@
   margin: 0;
   font-size: 14px;
   line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notification-empty {
+  color: #8b9dc3;
+  font-size: 13px;
+  padding: 16px 20px;
 }
 
 .notification-time {

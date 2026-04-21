@@ -14,7 +14,17 @@ const buildUrl = (path, params = {}) => {
 const handleResponse = async (response) => {
   if (!response.ok) {
     const text = await response.text();
-    const message = text || `Request failed with status ${response.status}`;
+    let message = text || `Request failed with status ${response.status}`;
+    if (text) {
+      try {
+        const parsed = JSON.parse(text);
+        if (typeof parsed?.detail === 'string' && parsed.detail.trim()) {
+          message = parsed.detail.trim();
+        }
+      } catch (_err) {
+        // non-JSON response body, keep raw text
+      }
+    }
     throw new Error(message);
   }
   if (response.status === 204) return null;
@@ -36,6 +46,19 @@ export const apiPost = async (path, body = {}) => {
   const token = getAuthToken();
   const response = await fetch(buildUrl(path), {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    body: JSON.stringify(body)
+  });
+  return handleResponse(response);
+};
+
+export const apiPatch = async (path, body = {}) => {
+  const token = getAuthToken();
+  const response = await fetch(buildUrl(path), {
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -91,7 +114,10 @@ export const resetPassword = async (email, code, newPassword) => {
 };
 
 export const fetchAlerts = async (params = {}) => apiGet('/api/alerts', params);
+export const fetchAlertAnalytics = async () => apiGet('/api/alerts/analytics');
 export const fetchLogs = async (params = {}) => apiGet('/api/logs', params);
 export const fetchLogCount = async (params = {}) => apiGet('/api/logs/count', params);
 
 export const fetchMe = async () => apiGet('/api/auth/me');
+export const updateNotificationPreferences = async (payload) =>
+  apiPatch('/api/auth/me/notification-preferences', payload);

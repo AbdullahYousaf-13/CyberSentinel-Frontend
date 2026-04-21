@@ -4,6 +4,32 @@ const toDisplay = (value, fallback = 'N/A') => {
   return text || fallback;
 };
 
+const truncateText = (value, maxLength = 60) => {
+  const text = String(value || '').trim();
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength - 3)}...`;
+};
+
+const classifySourceApp = (eventOrigin, source) => {
+  const probe = `${String(eventOrigin || '')} ${String(source || '')}`.toLowerCase();
+  if (/(auth|sshd|login|secure)/i.test(probe)) return 'Authentication';
+  if (/(kern|kernel|syslog|system)/i.test(probe)) return 'System';
+  return 'General System';
+};
+
+const classifyChannel = (network, decoderName) => {
+  const srcip = toDisplay(network?.srcip, '');
+  const dstip = toDisplay(network?.dstip, '');
+  if (srcip || dstip) return 'Network';
+
+  const decoder = String(decoderName || '').trim().toLowerCase();
+  if (decoder === 'sshd') return 'Login';
+  if (decoder === 'syscheck') return 'File';
+  if (decoder === 'kernel') return 'System';
+  return 'General';
+};
+
 export const formatAiScore = (score) => {
   if (typeof score !== 'number' || Number.isNaN(score)) return 'N/A';
   return score.toFixed(4);
@@ -47,14 +73,20 @@ export const mapAlertToDisplay = (alert, linkedLog) => {
 
 export const mapLogToDisplay = (log) => {
   const eventTime = log.event_time || log.timestamp;
+  const messageFull = log.message_normalized || log.message || 'No message available.';
+  const sourceApp = toDisplay(log.source_app, classifySourceApp(log.event_origin, log.source));
+  const sourceIp = toDisplay(log.source_ip, toDisplay(log.network?.srcip));
+  const destinationIp = toDisplay(log.destination_ip, toDisplay(log.network?.dstip));
+  const channel = toDisplay(log.channel, classifyChannel(log.network, log.decoder_name));
   return {
     id: log.id,
     eventId: log.event_id || log.id,
     eventTime: eventTime ? new Date(eventTime).toLocaleString() : 'N/A',
-    agentName: toDisplay(log.agent_name),
-    eventOrigin: toDisplay(log.event_origin),
-    decoderName: toDisplay(log.decoder_name),
-    network: formatNetworkTuple(log.network),
-    message: log.message_normalized || log.message || 'No message available.'
+    sourceApp,
+    sourceIp,
+    destinationIp,
+    channel,
+    message: truncateText(messageFull, 60),
+    messageFull
   };
 };

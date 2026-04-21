@@ -2,7 +2,14 @@ import React, { useState } from 'react';
 import AlertDetailsPanel from './AlertDetailsPanel';
 import './AlertsTable.css';
 
-const AlertsTable = ({ alerts }) => {
+const severityClassByValue = {
+  high: 'badge-high',
+  critical: 'badge-high',
+  medium: 'badge-medium',
+  low: 'badge-low'
+};
+
+const AlertsTable = ({ alerts, showSeverity = false }) => {
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
 
@@ -23,6 +30,7 @@ const AlertsTable = ({ alerts }) => {
                 <th>Detected At</th>
                 <th>Alert Type</th>
                 <th>Classification</th>
+                {showSeverity && <th>Severity</th>}
                 <th>AI Score</th>
                 <th>Model Version</th>
                 <th>Action</th>
@@ -35,6 +43,13 @@ const AlertsTable = ({ alerts }) => {
                   <td>{alert.detectedAt}</td>
                   <td>{alert.alertType}</td>
                   <td>{alert.classification}</td>
+                  {showSeverity && (
+                    <td>
+                      <span className={`severity-badge ${severityClassByValue[alert.severity] || 'badge-low'}`}>
+                        {String(alert.severity || 'low').toUpperCase()}
+                      </span>
+                    </td>
+                  )}
                   <td>{alert.aiScore}</td>
                   <td>{alert.modelVersion}</td>
                   <td>
