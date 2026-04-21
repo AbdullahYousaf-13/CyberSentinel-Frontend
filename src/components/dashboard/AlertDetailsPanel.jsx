@@ -4,75 +4,74 @@ import './AlertDetailsPanel.css';
 const AlertDetailsPanel = ({ isOpen, onClose, alert }) => {
   if (!isOpen || !alert) return null;
 
-  const getSeverityBadgeClass = (severity) => {
-    switch (severity?.toLowerCase()) {
-      case 'high':
-        return 'badge-high';
-      case 'medium':
-        return 'badge-medium';
-      case 'low':
-        return 'badge-low';
-      default:
-        return 'badge-low';
-    }
-  };
-
   return (
     <div className="alert-details-overlay" onClick={onClose}>
       <div className="alert-details-panel" onClick={(e) => e.stopPropagation()}>
         <div className="panel-header">
           <h3>Alert Details</h3>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <button className="close-btn" onClick={onClose}>x</button>
         </div>
         <div className="panel-content">
           <div className="alert-detail-section">
-            <h4>Alert Information</h4>
+            <h4>AI Detection Context</h4>
             <div className="alert-detail-row">
               <span className="alert-detail-label">Alert ID:</span>
               <span className="alert-detail-value">{alert.id}</span>
             </div>
             <div className="alert-detail-row">
-              <span className="alert-detail-label">Timestamp:</span>
-              <span className="alert-detail-value">{alert.timestamp}</span>
+              <span className="alert-detail-label">Detected At:</span>
+              <span className="alert-detail-value">{alert.detectedAt}</span>
             </div>
             <div className="alert-detail-row">
-              <span className="alert-detail-label">Source IP:</span>
-              <span className="alert-detail-value">{alert.sourceIP}</span>
+              <span className="alert-detail-label">Alert Type:</span>
+              <span className="alert-detail-value">{alert.alertType}</span>
             </div>
             <div className="alert-detail-row">
-              <span className="alert-detail-label">Attack Type:</span>
-              <span className="alert-detail-value">{alert.attackType}</span>
+              <span className="alert-detail-label">Classification:</span>
+              <span className="alert-detail-value">{alert.classification}</span>
             </div>
             <div className="alert-detail-row">
-              <span className="alert-detail-label">Severity:</span>
-              <span className="alert-detail-value">
-                <span className={`severity-badge ${getSeverityBadgeClass(alert.severity)}`}>
-                  {alert.severity}
-                </span>
-              </span>
+              <span className="alert-detail-label">AI Score:</span>
+              <span className="alert-detail-value">{alert.aiScore}</span>
             </div>
             <div className="alert-detail-row">
-              <span className="alert-detail-label">Status:</span>
-              <span className="alert-detail-value">{alert.status}</span>
-            </div>
-            <div className="alert-detail-row">
-              <span className="alert-detail-label">Mark as False Positive:</span>
-              <span className="alert-detail-value false-positive-row">
-                <label className="false-positive-toggle">
-                  <input type="checkbox" className="false-positive-checkbox" />
-                  <span className="false-positive-slider" />
-                </label>
-              </span>
+              <span className="alert-detail-label">Model Version:</span>
+              <span className="alert-detail-value">{alert.modelVersion}</span>
             </div>
           </div>
-          {alert.description && (
-            <div className="alert-detail-section">
-              <h4>Description</h4>
-              <div className="alert-detail-row">
-                <span className="alert-detail-value">{alert.description}</span>
-              </div>
+          <div className="alert-detail-section">
+            <h4>Raw Event Telemetry</h4>
+            <div className="alert-detail-row">
+              <span className="alert-detail-label">Event ID:</span>
+              <span className="alert-detail-value">{alert.rawContext?.eventId || 'N/A'}</span>
             </div>
-          )}
+            <div className="alert-detail-row">
+              <span className="alert-detail-label">Event Time:</span>
+              <span className="alert-detail-value">{alert.rawContext?.eventTime || 'N/A'}</span>
+            </div>
+            <div className="alert-detail-row">
+              <span className="alert-detail-label">Agent:</span>
+              <span className="alert-detail-value">{alert.rawContext?.agentName || 'N/A'}</span>
+            </div>
+            <div className="alert-detail-row">
+              <span className="alert-detail-label">Event Origin:</span>
+              <span className="alert-detail-value">{alert.rawContext?.eventOrigin || 'N/A'}</span>
+            </div>
+            <div className="alert-detail-row">
+              <span className="alert-detail-label">Decoder:</span>
+              <span className="alert-detail-value">{alert.rawContext?.decoderName || 'N/A'}</span>
+            </div>
+            <div className="alert-detail-row">
+              <span className="alert-detail-label">Network:</span>
+              <span className="alert-detail-value">{alert.rawContext?.network || 'N/A'}</span>
+            </div>
+          </div>
+          <div className="alert-detail-section">
+            <h4>Message</h4>
+            <div className="alert-detail-row">
+              <span className="alert-detail-value">{alert.rawContext?.message || 'N/A'}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -80,3 +79,4 @@ const AlertDetailsPanel = ({ isOpen, onClose, alert }) => {
 };
 
 export default AlertDetailsPanel;
+

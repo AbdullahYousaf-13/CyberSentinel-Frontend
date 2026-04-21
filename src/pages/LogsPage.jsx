@@ -2,13 +2,14 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import { fetchLogCount, fetchLogs } from '../services/api';
+import { mapLogToDisplay } from '../utils/securityViewMappers';
 import './Page.css';
 import './Dashboard.css';
 import './LogsPage.css';
 
 const COMPACT_LOG_BREAKPOINT = 960;
 const TABLE_ROW_HEIGHT = 56;
-const SOURCE_FILTER_DEBOUNCE_MS = 350;
+const AGENT_FILTER_DEBOUNCE_MS = 350;
 
 const getResponsivePageSize = (width, height) => {
   if (width <= 640) return 8;
@@ -22,21 +23,11 @@ const getResponsivePageSize = (width, height) => {
   return Math.min(maxRows, Math.max(minRows, estimatedRows));
 };
 
-const normalizeSeverity = (severity) => {
-  if (!severity) return 'unknown';
-  return severity.toLowerCase() === 'critical' ? 'high' : severity.toLowerCase();
-};
-
-const formatSeverity = (severity) => {
-  const normalizedSeverity = normalizeSeverity(severity);
-  return normalizedSeverity.charAt(0).toUpperCase() + normalizedSeverity.slice(1);
-};
-
 const LogsPage = () => {
   const [logs, setLogs] = useState([]);
-  const [sourceFilter, setSourceFilter] = useState('');
-  const [debouncedSourceFilter, setDebouncedSourceFilter] = useState('');
-  const [severityFilter, setSeverityFilter] = useState('');
+  const [agentFilter, setAgentFilter] = useState('');
+  const [debouncedAgentFilter, setDebouncedAgentFilter] = useState('');
+  const [originFilter, setOriginFilter] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(1);
@@ -53,7 +44,7 @@ const LogsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const token = localStorage.getItem('token');
-  const hasActiveFilters = Boolean(sourceFilter || severityFilter || startDate || endDate);
+  const hasActiveFilters = Boolean(agentFilter || originFilter || startDate || endDate);
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(totalLogs / pageSize)),
@@ -62,18 +53,18 @@ const LogsPage = () => {
   const offset = (page - 1) * pageSize;
 
   useEffect(() => {
-    const normalizedSourceFilter = sourceFilter.trim();
-    if (!normalizedSourceFilter) {
-      setDebouncedSourceFilter('');
+    const normalizedAgentFilter = agentFilter.trim();
+    if (!normalizedAgentFilter) {
+      setDebouncedAgentFilter('');
       return undefined;
     }
 
     const timeoutId = window.setTimeout(() => {
-      setDebouncedSourceFilter(normalizedSourceFilter);
-    }, SOURCE_FILTER_DEBOUNCE_MS);
+      setDebouncedAgentFilter(normalizedAgentFilter);
+    }, AGENT_FILTER_DEBOUNCE_MS);
 
     return () => window.clearTimeout(timeoutId);
-  }, [sourceFilter]);
+  }, [agentFilter]);
 
   const loadLogs = useCallback(async (overrides = {}) => {
     if (!token) return;
@@ -83,8 +74,8 @@ const LogsPage = () => {
       const params = {
         limit: pageSize,
         offset,
-        source: (overrides.source ?? debouncedSourceFilter) || undefined,
-        severity: (overrides.severity ?? severityFilter) || undefined,
+        agent: (overrides.agent ?? debouncedAgentFilter) || undefined,
+        origin: (overrides.origin ?? originFilter.trim()) || undefined,
         start_ts: (overrides.startDate ?? startDate)
           ? new Date(overrides.startDate ?? startDate).toISOString()
           : undefined,
@@ -95,8 +86,8 @@ const LogsPage = () => {
       const [logsData, countData] = await Promise.all([
         fetchLogs(params),
         fetchLogCount({
-          source: params.source,
-          severity: params.severity,
+          agent: params.agent,
+          origin: params.origin,
           start_ts: params.start_ts,
           end_ts: params.end_ts
         })
@@ -113,7 +104,7 @@ const LogsPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [token, pageSize, offset, debouncedSourceFilter, severityFilter, startDate, endDate, page]);
+  }, [token, pageSize, offset, debouncedAgentFilter, originFilter, startDate, endDate, page]);
 
   useEffect(() => {
     if (!token) return;
@@ -138,17 +129,7 @@ const LogsPage = () => {
     return () => window.removeEventListener('resize', onResize);
   }, [page]);
 
-  const displayLogs = useMemo(() => {
-    return logs.map((log) => ({
-      id: log.id,
-      timestamp: log.timestamp ? new Date(log.timestamp).toLocaleString() : 'N/A',
-      source: log.source || 'Unknown source',
-      severity: normalizeSeverity(log.severity),
-      severityLabel: formatSeverity(log.severity),
-      message: log.message || 'No message available.',
-      ip: log.metadata?.ip || 'N/A'
-    }));
-  }, [logs]);
+  const displayLogs = useMemo(() => logs.map(mapLogToDisplay), [logs]);
 
   const pageSummaryText = useMemo(() => {
     if (totalLogs === 0 || displayLogs.length === 0) {
@@ -162,11 +143,11 @@ const LogsPage = () => {
 
   const handleClearFilters = () => {
     const shouldReloadImmediately =
-      !sourceFilter && !severityFilter && !startDate && !endDate && page === 1;
+      !agentFilter && !originFilter && !startDate && !endDate && page === 1;
 
-    setSourceFilter('');
-    setDebouncedSourceFilter('');
-    setSeverityFilter('');
+    setAgentFilter('');
+    setDebouncedAgentFilter('');
+    setOriginFilter('');
     setStartDate('');
     setEndDate('');
     setPage(1);
@@ -191,7 +172,7 @@ const LogsPage = () => {
             <div>
               <h2 className="logs-section-title">Filters</h2>
               <p className="logs-section-copy">
-                Narrow the feed by source, severity, and time range.
+                Narrow archive events by agent, origin, and time range.
               </p>
             </div>
             <div className="logs-filter-actions">
@@ -199,9 +180,9 @@ const LogsPage = () => {
                 className="dashboard-btn"
                 type="button"
                 onClick={() => {
-                  const immediateSourceFilter = sourceFilter.trim();
-                  setDebouncedSourceFilter(immediateSourceFilter);
-                  loadLogs({ source: immediateSourceFilter });
+                  const immediateAgentFilter = agentFilter.trim();
+                  setDebouncedAgentFilter(immediateAgentFilter);
+                  loadLogs({ agent: immediateAgentFilter });
                 }}
                 disabled={!token || isLoading}
               >
@@ -219,35 +200,32 @@ const LogsPage = () => {
           </div>
           <div className="logs-filters-grid">
             <label className="logs-filter-field">
-              <span>Source</span>
+              <span>Agent</span>
               <input
                 className="logs-filter-input"
                 type="text"
-                placeholder="endpoint"
-                value={sourceFilter}
+                placeholder="prod-web-01"
+                value={agentFilter}
                 disabled={!token}
                 onChange={(e) => {
                   setPage(1);
-                  setSourceFilter(e.target.value);
+                  setAgentFilter(e.target.value);
                 }}
               />
             </label>
             <label className="logs-filter-field">
-              <span>Severity</span>
-              <select
-                className="logs-filter-select"
-                value={severityFilter}
+              <span>Event Origin</span>
+              <input
+                className="logs-filter-input"
+                type="text"
+                placeholder="/var/log/auth.log"
+                value={originFilter}
                 disabled={!token}
                 onChange={(e) => {
                   setPage(1);
-                  setSeverityFilter(e.target.value);
+                  setOriginFilter(e.target.value);
                 }}
-              >
-                <option value="">All Severities</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
+              />
             </label>
             <label className="logs-filter-field">
               <span>Start</span>
@@ -284,8 +262,8 @@ const LogsPage = () => {
               <h2 className="logs-section-title">Recent Logs</h2>
               <p className="logs-section-copy">
                 {isCompactScreen
-                  ? 'Smaller screens switch to stacked cards so the message preview stays readable.'
-                  : 'Larger screens keep the wider table layout for faster scanning.'}
+                  ? 'Smaller screens switch to stacked cards to keep event context readable.'
+                  : 'Larger screens keep the wide table for fast archive-event scanning.'}
               </p>
             </div>
             <div className="logs-results-meta">{pageSummaryText}</div>
@@ -299,28 +277,33 @@ const LogsPage = () => {
           ) : isCompactScreen ? (
             <div className="logs-card-list">
               {displayLogs.map((log) => (
-                <article key={log.id} className={`logs-card logs-card-${log.severity}`}>
+                <article key={log.id} className="logs-card">
                   <div className="logs-card-top">
                     <div className="logs-card-meta">
-                      <span className="logs-card-label">Log ID</span>
-                      <span className="logs-card-id">{log.id}</span>
+                      <span className="logs-card-label">Event ID</span>
+                      <span className="logs-card-id">{log.eventId}</span>
                     </div>
-                    <span className={`logs-severity-badge logs-severity-${log.severity}`}>
-                      {log.severityLabel}
-                    </span>
                   </div>
                   <div className="logs-card-grid">
                     <div className="logs-card-field">
-                      <span className="logs-card-label">Timestamp</span>
-                      <span className="logs-card-value">{log.timestamp}</span>
+                      <span className="logs-card-label">Event Time</span>
+                      <span className="logs-card-value">{log.eventTime}</span>
                     </div>
                     <div className="logs-card-field">
-                      <span className="logs-card-label">Source</span>
-                      <span className="logs-card-value">{log.source}</span>
+                      <span className="logs-card-label">Agent</span>
+                      <span className="logs-card-value">{log.agentName}</span>
                     </div>
                     <div className="logs-card-field">
-                      <span className="logs-card-label">IP</span>
-                      <span className="logs-card-value">{log.ip}</span>
+                      <span className="logs-card-label">Event Origin</span>
+                      <span className="logs-card-value">{log.eventOrigin}</span>
+                    </div>
+                    <div className="logs-card-field">
+                      <span className="logs-card-label">Decoder</span>
+                      <span className="logs-card-value">{log.decoderName}</span>
+                    </div>
+                    <div className="logs-card-field">
+                      <span className="logs-card-label">Network</span>
+                      <span className="logs-card-value">{log.network}</span>
                     </div>
                   </div>
                   <div className="logs-card-message">
@@ -336,26 +319,24 @@ const LogsPage = () => {
                 <table className="logs-table">
                   <thead>
                     <tr>
-                      <th>Log ID</th>
-                      <th>Timestamp</th>
-                      <th>Source</th>
-                      <th>Severity</th>
-                      <th>IP</th>
+                      <th>Event ID</th>
+                      <th>Event Time</th>
+                      <th>Agent</th>
+                      <th>Event Origin</th>
+                      <th>Decoder</th>
+                      <th>Network</th>
                       <th>Message</th>
                     </tr>
                   </thead>
                   <tbody>
                     {displayLogs.map((log) => (
                       <tr key={log.id}>
-                        <td className="log-id">{log.id}</td>
-                        <td>{log.timestamp}</td>
-                        <td>{log.source}</td>
-                        <td>
-                          <span className={`logs-severity-badge logs-severity-${log.severity}`}>
-                            {log.severityLabel}
-                          </span>
-                        </td>
-                        <td>{log.ip}</td>
+                        <td className="log-id">{log.eventId}</td>
+                        <td>{log.eventTime}</td>
+                        <td>{log.agentName}</td>
+                        <td>{log.eventOrigin}</td>
+                        <td>{log.decoderName}</td>
+                        <td>{log.network}</td>
                         <td className="log-message">{log.message}</td>
                       </tr>
                     ))}
@@ -393,6 +374,3 @@ const LogsPage = () => {
 };
 
 export default LogsPage;
-
-
-

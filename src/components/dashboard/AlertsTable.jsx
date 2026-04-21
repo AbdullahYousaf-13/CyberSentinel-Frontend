@@ -2,22 +2,9 @@ import React, { useState } from 'react';
 import AlertDetailsPanel from './AlertDetailsPanel';
 import './AlertsTable.css';
 
-const AlertsTable = ({ alerts, stats }) => {
+const AlertsTable = ({ alerts }) => {
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
-
-  const getSeverityBadgeClass = (severity) => {
-    switch (severity.toLowerCase()) {
-      case 'high':
-        return 'badge-high';
-      case 'medium':
-        return 'badge-medium';
-      case 'low':
-        return 'badge-low';
-      default:
-        return 'badge-low';
-    }
-  };
 
   const handleDetailsClick = (alert) => {
     setSelectedAlert(alert);
@@ -33,11 +20,11 @@ const AlertsTable = ({ alerts, stats }) => {
             <thead>
               <tr>
                 <th>Alert ID</th>
-                <th>Timestamp</th>
-                <th>Source IP</th>
-                <th>Attack Type</th>
-                <th>Severity</th>
-                <th>Status</th>
+                <th>Detected At</th>
+                <th>Alert Type</th>
+                <th>Classification</th>
+                <th>AI Score</th>
+                <th>Model Version</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -45,15 +32,11 @@ const AlertsTable = ({ alerts, stats }) => {
               {alerts.map((alert) => (
                 <tr key={alert.id}>
                   <td className="alert-id">{alert.id}</td>
-                  <td>{alert.timestamp}</td>
-                  <td>{alert.sourceIP}</td>
-                  <td>{alert.attackType}</td>
-                  <td>
-                    <span className={`severity-badge ${getSeverityBadgeClass(alert.severity)}`}>
-                      {alert.severity}
-                    </span>
-                  </td>
-                  <td>{alert.status}</td>
+                  <td>{alert.detectedAt}</td>
+                  <td>{alert.alertType}</td>
+                  <td>{alert.classification}</td>
+                  <td>{alert.aiScore}</td>
+                  <td>{alert.modelVersion}</td>
                   <td>
                     <button className="details-btn" onClick={() => handleDetailsClick(alert)}>
                       Details

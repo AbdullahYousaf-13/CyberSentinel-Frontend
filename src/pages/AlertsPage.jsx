@@ -5,6 +5,7 @@ import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import AlertsTable from '../components/dashboard/AlertsTable';
 import { fetchAlerts, fetchLogs } from '../services/api';
+import { mapAlertToDisplay } from '../utils/securityViewMappers';
 import './Page.css';
 import './AlertsPage.css';
 
@@ -54,19 +55,7 @@ const AlertsPage = () => {
 
   const displayAlerts = useMemo(() => {
     return alerts.map((alert) => {
-      const log = logsMap.get(alert.log_id);
-      const sourceIp = log?.metadata?.ip || 'N/A';
-      const attackType = alert.classification || alert.alert_type || 'unknown';
-      const normalizedSeverity = alert.severity === 'critical' ? 'high' : alert.severity;
-      return {
-        id: alert.id,
-        timestamp: new Date(alert.created_at).toLocaleString(),
-        sourceIP: sourceIp,
-        attackType,
-        severity: normalizedSeverity || 'low',
-        status: 'Active',
-        description: alert.metadata?.note || alert.metadata?.rule || ''
-      };
+      return mapAlertToDisplay(alert, logsMap.get(alert.log_id));
     });
   }, [alerts, logsMap]);
 
@@ -75,9 +64,10 @@ const AlertsPage = () => {
     const query = searchQuery.toLowerCase();
     return displayAlerts.filter((a) => 
       a.id.toLowerCase().includes(query) ||
-      a.sourceIP.includes(query) ||
-      a.attackType.toLowerCase().includes(query) ||
-      (a.description && a.description.toLowerCase().includes(query))
+      a.alertType.toLowerCase().includes(query) ||
+      a.classification.toLowerCase().includes(query) ||
+      a.modelVersion.toLowerCase().includes(query) ||
+      a.aiScore.toLowerCase().includes(query)
     );
   }, [searchQuery, displayAlerts]);
 
@@ -88,14 +78,14 @@ const AlertsPage = () => {
   const handleDownloadCSV = () => {
     // CSV download logic
     const csvContent = [
-      ['Alert ID', 'Timestamp', 'Source IP', 'Attack Type', 'Severity', 'Status'].join(','),
+      ['Alert ID', 'Detected At', 'Alert Type', 'Classification', 'AI Score', 'Model Version'].join(','),
       ...filtered.map(a => [
         a.id,
-        a.timestamp,
-        a.sourceIP,
-        a.attackType,
-        a.severity,
-        a.status
+        a.detectedAt,
+        a.alertType,
+        a.classification,
+        a.aiScore,
+        a.modelVersion
       ].join(','))
     ].join('\n');
 
@@ -125,7 +115,7 @@ const AlertsPage = () => {
             <FontAwesomeIcon icon={faSearch} className="search-icon" />
             <input
               type="text"
-              placeholder="Search by IP Address, Attack Type or details"
+              placeholder="Search by alert ID, type, classification, score, or model"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="alerts-search-input"

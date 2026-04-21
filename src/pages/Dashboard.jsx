@@ -7,6 +7,7 @@ import AttackChart from '../components/dashboard/AttackChart';
 import ThreatPie from '../components/dashboard/ThreatPie';
 import { fetchAlerts, fetchLogs } from '../services/api';
 import { attackTrendsData, attackTypeDistribution } from '../data/mockData';
+import { mapAlertToDisplay } from '../utils/securityViewMappers';
 import './Dashboard.css';
 
 const PAGE_SIZE = 10;
@@ -82,19 +83,7 @@ const Dashboard = () => {
 
   const displayAlerts = useMemo(() => {
     return allAlerts.map((alert) => {
-      const log = logsMap.get(alert.log_id);
-      const sourceIp = log?.metadata?.ip || 'N/A';
-      const attackType = alert.classification || alert.alert_type || 'unknown';
-      const normalizedSeverity = alert.severity === 'critical' ? 'high' : alert.severity;
-      return {
-        id: alert.id,
-        timestamp: new Date(alert.created_at).toLocaleString(),
-        sourceIP: sourceIp,
-        attackType,
-        severity: normalizedSeverity || 'low',
-        status: 'Active',
-        description: alert.metadata?.note || alert.metadata?.rule || ''
-      };
+      return mapAlertToDisplay(alert, logsMap.get(alert.log_id));
     });
   }, [allAlerts, logsMap]);
 
