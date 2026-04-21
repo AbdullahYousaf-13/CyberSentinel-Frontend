@@ -32,7 +32,6 @@ const SettingsPage = () => {
   const [twoFASetupMode, setTwoFASetupMode] = useState(false);
   const [twoFADisableMode, setTwoFADisableMode] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [provisioningUri, setProvisioningUri] = useState('');
   const [totpSecret, setTotpSecret] = useState('');
   const [twoFAError, setTwoFAError] = useState('');
   const [twoFAInfo, setTwoFAInfo] = useState('');
@@ -100,11 +99,10 @@ const SettingsPage = () => {
     setIsSubmitting(true);
     try {
       const setup = await setupTotp();
-      setProvisioningUri(setup.provisioning_uri);
       setTotpSecret(setup.totp_secret);
       setTwoFASetupMode(true);
       setTwoFADisableMode(false);
-      setTwoFAInfo('Scan the link and enter the 6-digit code to enable 2FA.');
+      setTwoFAInfo('');
     } catch (err) {
       setTwoFAError('Failed to start 2FA setup.');
       setTwoFASetupMode(false);
@@ -238,24 +236,10 @@ const SettingsPage = () => {
                 <p className="muted">
                   {twoFADisableMode
                     ? 'Enter the 6-digit code from your authenticator app to disable 2FA.'
-                    : 'Scan the link and confirm with a 6-digit code.'}
+                    : 'Activate 2FA by adding this secret to your authenticator app and confirming with a 6-digit code.'}
                 </p>
               </div>
               <div className="twofa-setup-panel">
-                {!twoFADisableMode && provisioningUri && (
-                  <div className="totp-link-row">
-                    <a className="totp-link" href={provisioningUri} target="_blank" rel="noreferrer">
-                      Open Authenticator Link
-                    </a>
-                    <button
-                      type="button"
-                      className="details-btn"
-                      onClick={() => handleCopy(provisioningUri, 'Link')}
-                    >
-                      Copy Link
-                    </button>
-                  </div>
-                )}
                 {!twoFADisableMode && totpSecret && (
                   <div className="totp-secret">
                     Secret: <span>{totpSecret}</span>
@@ -271,8 +255,8 @@ const SettingsPage = () => {
                 )}
                 {!twoFADisableMode && (
                   <p className="form-note">
-                    If the link does not open, add a new account in your authenticator app and paste
-                    the secret manually.
+                    Add this secret to your authenticator app, enter the 6-digit code below, then
+                    click Verify & Enable.
                   </p>
                 )}
                 <div className="otp-inputs">

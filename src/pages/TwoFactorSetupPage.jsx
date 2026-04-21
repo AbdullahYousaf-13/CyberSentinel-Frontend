@@ -101,9 +101,6 @@ const TwoFactorSetupPage = () => {
               <div className="form-group totp-setup">
                 {provisioningUri && (
                   <div className="totp-link-row">
-                    <a className="totp-link" href={provisioningUri} target="_blank" rel="noreferrer">
-                      Open Authenticator Link
-                    </a>
                     <button
                       type="button"
                       className="details-btn"
