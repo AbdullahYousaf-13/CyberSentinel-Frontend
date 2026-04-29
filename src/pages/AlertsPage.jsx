@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faDownload } from '@fortawesome/free-solid-svg-icons';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import AlertsTable from '../components/dashboard/AlertsTable';
-import { fetchAlerts, fetchLogs } from '../services/api';
+import { confirmKnownAttack, fetchAlerts, fetchLogs, fetchMe, markFalsePositive } from '../services/api';
 import { mapAlertToDisplay } from '../utils/securityViewMappers';
 import './Page.css';
 import './AlertsPage.css';
@@ -20,20 +20,23 @@ const AlertsPage = () => {
   const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [actionMessage, setActionMessage] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const token = localStorage.getItem('token');
 
-  const loadAlerts = async () => {
+  const loadAlerts = useCallback(async () => {
     setIsLoading(true);
     setError('');
     try {
-      const [alertsData, logsData] = await Promise.all([
+      const [alertsData, logsData, me] = await Promise.all([
         fetchAlerts({
           limit: PAGE_SIZE,
           offset,
           severity: severityFilter || undefined,
           alert_type: typeFilter || undefined
         }),
-        fetchLogs({ limit: 200, offset: 0 })
+        fetchLogs({ limit: 200, offset: 0 }),
+        fetchMe()
       ]);
       const map = new Map();
       logsData.forEach((log) => {
@@ -41,17 +44,18 @@ const AlertsPage = () => {
       });
       setLogsMap(map);
       setAlerts(alertsData);
+      setIsAdmin(Boolean(me && me.is_admin));
     } catch (err) {
       setError('Failed to load alerts. Check your token or backend status.');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [offset, severityFilter, typeFilter]);
 
   useEffect(() => {
     if (!token) return;
     loadAlerts();
-  }, [token, offset, severityFilter, typeFilter]);
+  }, [token, loadAlerts]);
 
   const displayAlerts = useMemo(() => {
     return alerts.map((alert) => {
@@ -74,6 +78,23 @@ const AlertsPage = () => {
 
   const handleRefresh = () => {
     loadAlerts();
+  };
+
+  const handleConfirmKnown = async (alert) => {
+    const defaultValue = (alert.classification && alert.classification !== 'N/A')
+      ? alert.classification
+      : 'PORTSCAN';
+    const classification = window.prompt('Enter known attack label (e.g., PORTSCAN, SQL_INJECTION_ATTEMPT):', defaultValue);
+    if (!classification) return;
+    try {
+      await confirmKnownAttack(alert.id, { classification: classification.trim() });
+      setActionMessage(`Alert ${alert.id} marked as known attack.`);
+      await loadAlerts();
+      setTimeout(() => setActionMessage(''), 3000);
+    } catch (err) {
+      setActionMessage(`Failed to mark alert: ${err.message}`);
+      setTimeout(() => setActionMessage(''), 4000);
+    }
   };
 
   const handleDownloadCSV = () => {
@@ -100,6 +121,20 @@ const AlertsPage = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  const handleMarkFalsePositive = async (alert) => {
+    const notes = window.prompt('Optional notes for this false-positive suppression:', '');
+    if (notes === null) return;
+    try {
+      await markFalsePositive(alert.id, { notes: notes.trim() || undefined });
+      setActionMessage(`Alert ${alert.id} marked false positive and suppression enabled.`);
+      await loadAlerts();
+      setTimeout(() => setActionMessage(''), 3500);
+    } catch (err) {
+      setActionMessage(`Failed to mark false positive: ${err.message}`);
+      setTimeout(() => setActionMessage(''), 4500);
+    }
+  };
+
   return (
     <div className="dashboard-layout">
       <Header />
@@ -113,6 +148,7 @@ const AlertsPage = () => {
             </div>
           )}
           {error && <div className="alerts-warning">{error}</div>}
+          {actionMessage && <div className="alerts-warning">{actionMessage}</div>}
           <div className="alerts-search-container">
             <FontAwesomeIcon icon={faSearch} className="search-icon" />
             <input
@@ -163,7 +199,13 @@ const AlertsPage = () => {
         {isLoading ? (
           <div className="alerts-warning">Loading alerts...</div>
         ) : (
-          <AlertsTable alerts={filtered} showSeverity />
+          <AlertsTable
+            alerts={filtered}
+            showSeverity
+            isAdmin={isAdmin}
+            onConfirmKnown={handleConfirmKnown}
+            onMarkFalsePositive={handleMarkFalsePositive}
+          />
         )}
         <div className="alerts-pagination">
           <button

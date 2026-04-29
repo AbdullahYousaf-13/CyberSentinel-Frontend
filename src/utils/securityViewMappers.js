@@ -4,13 +4,6 @@ const toDisplay = (value, fallback = 'N/A') => {
   return text || fallback;
 };
 
-const truncateText = (value, maxLength = 60) => {
-  const text = String(value || '').trim();
-  if (!text) return '';
-  if (text.length <= maxLength) return text;
-  return `${text.slice(0, maxLength - 3)}...`;
-};
-
 const classifySourceApp = (eventOrigin, source) => {
   const probe = `${String(eventOrigin || '')} ${String(source || '')}`.toLowerCase();
   if (/(auth|sshd|login|secure)/i.test(probe)) return 'Authentication';
@@ -28,6 +21,14 @@ const classifyChannel = (network, decoderName) => {
   if (decoder === 'syscheck') return 'File';
   if (decoder === 'kernel') return 'System';
   return 'General';
+};
+
+const normalizeAlertType = (value) => {
+  const raw = String(value || '').trim().toLowerCase();
+  if (raw === 'known_attack') return 'known_attack';
+  if (raw === 'anomaly' || raw === 'unknown_attack') return 'anomaly';
+  if (raw === 'benign') return 'benign';
+  return 'anomaly';
 };
 
 export const formatAiScore = (score) => {
@@ -62,7 +63,7 @@ export const mapAlertToDisplay = (alert, linkedLog) => {
   return {
     id: alert.id,
     detectedAt: new Date(alert.created_at).toLocaleString(),
-    alertType: toDisplay(alert.alert_type, 'unknown'),
+    alertType: normalizeAlertType(alert.alert_type),
     classification: toDisplay(alert.classification),
     aiScore: formatAiScore(alert.anomaly_score),
     modelVersion: toDisplay(alert.model_version),
@@ -86,7 +87,7 @@ export const mapLogToDisplay = (log) => {
     sourceIp,
     destinationIp,
     channel,
-    message: truncateText(messageFull, 60),
+    message: messageFull,
     messageFull
   };
 };

@@ -173,6 +173,29 @@
   margin-top: 10px;
 }
 
+.model-ops-reason-input {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: #0a1326;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 74px;
+  line-height: 1.4;
+}
+
+.model-ops-reason-input:focus {
+  outline: none;
+  border-color: rgba(0, 229, 255, 0.8);
+}
+
+.model-ops-reason-input::placeholder {
+  color: #8b9dc3;
+}
+
 .save-btn {
   background: transparent;
   color: #FFFFFF;

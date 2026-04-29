@@ -52,7 +52,7 @@ const RegisterForm = () => {
       }
       setVerificationSent(true);
     } catch (err) {
-      setError('Registration failed. Check if an admin already exists.');
+      setError('Registration failed. Check if an account already exists.');
     } finally {
       setIsSubmitting(false);
     }

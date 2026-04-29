@@ -12,6 +12,7 @@ import PrecautionsPage from './pages/PrecautionsPage';
 import FeedbackPage from './pages/FeedbackPage';
 import ArchitecturePage from './pages/ArchitecturePage';
 import SettingsPage from './pages/SettingsPage';
+import ModelOpsPage from './pages/ModelOpsPage';
 import './App.css';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/feedback" element={<FeedbackPage />} />
         <Route path="/architecture" element={<ArchitecturePage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/model-ops" element={<ModelOpsPage />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>

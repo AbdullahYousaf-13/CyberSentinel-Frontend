@@ -113,11 +113,28 @@ export const resetPassword = async (email, code, newPassword) => {
   return apiPost('/api/auth/password/reset', { email, code, new_password: newPassword });
 };
 
-export const fetchAlerts = async (params = {}) => apiGet('/api/alerts', params);
+export const fetchAlerts = async (params = {}) => apiGet('/api/alerts/', params);
 export const fetchAlertAnalytics = async () => apiGet('/api/alerts/analytics');
-export const fetchLogs = async (params = {}) => apiGet('/api/logs', params);
+export const fetchLogs = async (params = {}) => apiGet('/api/logs/', params);
 export const fetchLogCount = async (params = {}) => apiGet('/api/logs/count', params);
 
 export const fetchMe = async () => apiGet('/api/auth/me');
 export const updateNotificationPreferences = async (payload) =>
   apiPatch('/api/auth/me/notification-preferences', payload);
+
+export const confirmKnownAttack = async (alertId, payload) =>
+  apiPost(`/api/alerts/${alertId}/confirm-known`, payload);
+export const markFalsePositive = async (alertId, payload = {}) =>
+  apiPost(`/api/alerts/${alertId}/mark-false-positive`, payload);
+
+export const createRetrainJob = async (payload) => apiPost('/api/ml/models/retrain', payload);
+export const listRetrainJobs = async (params = {}) => apiGet('/api/ml/models/retrain-jobs', params);
+export const fetchRetrainJob = async (jobId) => apiGet(`/api/ml/models/retrain-jobs/${jobId}`);
+export const listModelVersions = async () => apiGet('/api/ml/models/versions');
+export const rollbackModelVersion = async (targetVersion) =>
+  apiPost('/api/ml/models/rollback', { target_version: targetVersion });
+export const listSuppressions = async (params = {}) => apiGet('/api/ml/suppressions', params);
+export const deactivateSuppression = async (fingerprint) =>
+  apiPost(`/api/ml/suppressions/${fingerprint}/deactivate`);
+export const activateSuppression = async (fingerprint) =>
+  apiPost(`/api/ml/suppressions/${fingerprint}/activate`);

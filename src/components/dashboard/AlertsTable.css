@@ -15,10 +15,13 @@
 
 .table-wrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable both-edges;
 }
 
 .alerts-table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
 }
 
@@ -35,6 +38,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-bottom: 2px solid #2a3441;
+  white-space: nowrap;
 }
 
 .alerts-table tbody tr {
@@ -50,6 +54,7 @@
   padding: 15px;
   font-size: 14px;
   color: #ffffff;
+  white-space: nowrap;
 }
 
 .alert-id {
@@ -118,6 +123,29 @@
 }
 
 @media (max-width: 600px) {
+  .col-classification,
+  .col-ai-score,
+  .col-model-version {
+    display: none;
+  }
+
+  .col-alert-id {
+    max-width: 128px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .col-detected-at {
+    white-space: normal;
+    min-width: 120px;
+  }
+
+  .col-alert-type,
+  .col-severity,
+  .col-action {
+    min-width: 90px;
+  }
+
   .alerts-table th,
   .alerts-table td {
     font-size: 12px;

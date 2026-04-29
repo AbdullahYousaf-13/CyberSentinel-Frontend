@@ -4,26 +4,32 @@ import {
   Pie,
   Cell,
   ResponsiveContainer,
-  Legend,
   Tooltip
 } from 'recharts';
 import './ThreatPie.css';
 
 const ThreatPie = ({ data }) => {
   const COLORS = data.map(item => item.color);
+  const total = data.reduce((sum, row) => sum + Number(row.value || 0), 0);
+  const toPct = (count) => {
+    if (!total) return '0.000%';
+    return `${((Number(count || 0) / total) * 100).toFixed(3)}%`;
+  };
 
   return (
     <div className="threat-pie-container">
       <h2 className="section-title">Attack Type Distribution</h2>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={280}>
         <PieChart>
           <Pie
             data={data}
             cx="50%"
             cy="50%"
             labelLine={false}
-            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-            outerRadius={100}
+            label={false}
+            outerRadius={88}
+            minAngle={3}
+            paddingAngle={1}
             fill="#8884d8"
             dataKey="value"
           >
@@ -40,12 +46,18 @@ const ThreatPie = ({ data }) => {
             labelStyle={{ color: '#FFFFFF' }}
             itemStyle={{ color: '#FFFFFF' }}
           />
-          <Legend
-            wrapperStyle={{ color: '#8b9dc3', fontSize: '14px' }}
-            iconType="circle"
-          />
         </PieChart>
       </ResponsiveContainer>
+      <div className="threat-legend-grid">
+        {data.map((entry, index) => (
+          <div className="threat-legend-item" key={`${entry.name}-${index}`}>
+            <span className="threat-legend-dot" style={{ backgroundColor: entry.color }} />
+            <span className="threat-legend-text">
+              {entry.name} {toPct(entry.value)}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

@@ -1,8 +1,36 @@
 import React from 'react';
 import './AlertDetailsPanel.css';
 
-const AlertDetailsPanel = ({ isOpen, onClose, alert }) => {
+const parseWebAccessLogMessage = (message) => {
+  const text = String(message || '').trim();
+  if (!text) return null;
+
+  const pattern = /^(?<srcip>\S+)\s+-\s+-\s+\[(?<ts>[^\]]+)\]\s+"(?<method>[A-Z]+)\s+(?<path>\S+)\s+(?<httpver>HTTP\/[0-9.]+)"\s+(?<status>\d{3})\s+(?<bytes>\S+)\s+"(?<referrer>[^"]*)"\s+"(?<ua>[^"]*)"/;
+  const match = text.match(pattern);
+  if (!match || !match.groups) return null;
+
+  const { srcip, ts, method, path, httpver, status, bytes, referrer, ua } = match.groups;
+  return {
+    summary: `${method} ${path} returned HTTP ${status}`,
+    fields: [
+      { label: 'Source IP', value: srcip },
+      { label: 'Request Time', value: ts },
+      { label: 'Method', value: method },
+      { label: 'Path', value: path },
+      { label: 'Protocol', value: httpver },
+      { label: 'Status Code', value: status },
+      { label: 'Response Size', value: bytes === '-' ? 'N/A' : `${bytes} bytes` },
+      { label: 'Referrer', value: referrer === '-' ? 'N/A' : referrer },
+      { label: 'User Agent', value: ua || 'N/A' }
+    ]
+  };
+};
+
+const AlertDetailsPanel = ({ isOpen, onClose, alert, onMarkKnown = null, onMarkFalsePositive = null }) => {
   if (!isOpen || !alert) return null;
+  const isAnomaly = String(alert.alertType || '').toLowerCase() === 'anomaly';
+  const rawMessage = alert.rawContext?.message || 'N/A';
+  const parsedMessage = parseWebAccessLogMessage(rawMessage);
 
   return (
     <div className="alert-details-overlay" onClick={onClose}>
@@ -68,10 +96,42 @@ const AlertDetailsPanel = ({ isOpen, onClose, alert }) => {
           </div>
           <div className="alert-detail-section">
             <h4>Message</h4>
-            <div className="alert-detail-row">
-              <span className="alert-detail-value">{alert.rawContext?.message || 'N/A'}</span>
-            </div>
+            {parsedMessage ? (
+              <>
+                <div className="alert-message-summary">{parsedMessage.summary}</div>
+                <div className="alert-message-grid">
+                  {parsedMessage.fields.map((item) => (
+                    <div key={item.label} className="alert-message-item">
+                      <span className="alert-message-item-label">{item.label}</span>
+                      <span className="alert-message-item-value">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="alert-detail-row">
+                  <span className="alert-detail-label">Raw Message:</span>
+                  <span className="alert-detail-value alert-message-raw">{rawMessage}</span>
+                </div>
+              </>
+            ) : (
+              <div className="alert-detail-row">
+                <span className="alert-detail-value alert-message-raw">{rawMessage}</span>
+              </div>
+            )}
           </div>
+          {isAnomaly && (
+            <div className="alert-details-actions">
+              {onMarkKnown && (
+                <button className="details-btn" onClick={() => onMarkKnown(alert)}>
+                  Mark as Known Attack
+                </button>
+              )}
+              {onMarkFalsePositive && (
+                <button className="details-btn" onClick={() => onMarkFalsePositive(alert)}>
+                  Mark as False Positive
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

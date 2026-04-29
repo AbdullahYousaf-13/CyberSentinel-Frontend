@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import AlertCards from '../components/dashboard/AlertCards';
 import AlertsTable from '../components/dashboard/AlertsTable';
 import AttackChart from '../components/dashboard/AttackChart';
 import ThreatPie from '../components/dashboard/ThreatPie';
-import { fetchAlertAnalytics, fetchAlerts, fetchLogs } from '../services/api';
+import { confirmKnownAttack, fetchAlertAnalytics, fetchAlerts, fetchLogs, markFalsePositive } from '../services/api';
 import { mapAlertToDisplay } from '../utils/securityViewMappers';
 import './Dashboard.css';
 
@@ -22,10 +22,11 @@ const Dashboard = () => {
   const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [actionMessage, setActionMessage] = useState('');
   const [activeSeverity, setActiveSeverity] = useState('total');
   const token = localStorage.getItem('token');
 
-  const fetchAllAlerts = async () => {
+  const fetchAllAlerts = useCallback(async () => {
     const BATCH_SIZE = 200;
     const MAX_BATCHES = 50;
     let currentOffset = 0;
@@ -40,9 +41,9 @@ const Dashboard = () => {
       batches += 1;
     }
     return collected;
-  };
+  }, []);
 
-  const fetchAllLogs = async () => {
+  const fetchAllLogs = useCallback(async () => {
     const BATCH_SIZE = 200;
     const MAX_BATCHES = 50;
     let currentOffset = 0;
@@ -57,9 +58,9 @@ const Dashboard = () => {
       batches += 1;
     }
     return collected;
-  };
+  }, []);
 
-  const loadAlerts = async () => {
+  const loadAlerts = useCallback(async () => {
     setIsLoading(true);
     setError('');
     try {
@@ -85,12 +86,12 @@ const Dashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [fetchAllAlerts, fetchAllLogs]);
 
   useEffect(() => {
     if (!token) return;
     loadAlerts();
-  }, [token]);
+  }, [token, loadAlerts]);
 
   const displayAlerts = useMemo(() => {
     return allAlerts.map((alert) => {
@@ -143,12 +144,44 @@ const Dashboard = () => {
     }));
   }, [analytics]);
 
+  const handleConfirmKnown = async (alert) => {
+    const defaultValue = (alert.classification && alert.classification !== 'N/A')
+      ? alert.classification
+      : 'PORTSCAN';
+    const classification = window.prompt('Enter known attack label (e.g., PORTSCAN, SQL_INJECTION_ATTEMPT):', defaultValue);
+    if (!classification) return;
+    try {
+      await confirmKnownAttack(alert.id, { classification: classification.trim() });
+      setActionMessage(`Alert ${alert.id} marked as known attack.`);
+      await loadAlerts();
+      setTimeout(() => setActionMessage(''), 3000);
+    } catch (err) {
+      setActionMessage(`Failed to mark alert: ${err.message}`);
+      setTimeout(() => setActionMessage(''), 4000);
+    }
+  };
+
+  const handleMarkFalsePositive = async (alert) => {
+    const notes = window.prompt('Optional notes for this false-positive suppression:', '');
+    if (notes === null) return;
+    try {
+      await markFalsePositive(alert.id, { notes: notes.trim() || undefined });
+      setActionMessage(`Alert ${alert.id} marked false positive and suppression enabled.`);
+      await loadAlerts();
+      setTimeout(() => setActionMessage(''), 3500);
+    } catch (err) {
+      setActionMessage(`Failed to mark false positive: ${err.message}`);
+      setTimeout(() => setActionMessage(''), 4500);
+    }
+  };
+
   return (
     <div className="dashboard-layout dashboard-page-layout">
       <Header />
       <Sidebar />
       <main className="main-content dashboard-main-content">
         {error && <div className="dashboard-warning">{error}</div>}
+        {actionMessage && <div className="dashboard-warning">{actionMessage}</div>}
         <AlertCards
           stats={alertStats}
           activeFilter={activeSeverity}
@@ -157,7 +190,16 @@ const Dashboard = () => {
             setActiveSeverity(key);
           }}
         />
-        {isLoading ? <div className="dashboard-warning">Loading alerts...</div> : <AlertsTable alerts={pagedAlerts} showSeverity />}
+        {isLoading ? (
+          <div className="dashboard-warning">Loading alerts...</div>
+        ) : (
+          <AlertsTable
+            alerts={pagedAlerts}
+            showSeverity
+            onConfirmKnown={handleConfirmKnown}
+            onMarkFalsePositive={handleMarkFalsePositive}
+          />
+        )}
         <div className="dashboard-controls">
           <button className="dashboard-btn" onClick={loadAlerts}>
             Refresh

@@ -5,7 +5,8 @@ import {
   faHome,
   faListUl,
   faShieldAlt,
-  faCog
+  faCog,
+  faBrain
 } from '@fortawesome/free-solid-svg-icons';
 import './Sidebar.css';
 
@@ -15,6 +16,7 @@ const Sidebar = () => {
   const menuItems = [
     { path: '/dashboard', icon: faHome, label: 'Dashboard' },
     { path: '/logs', icon: faListUl, label: 'Logs' },
+    { path: '/model-ops', icon: faBrain, label: 'Model Ops' },
     { path: '/precautions', icon: faShieldAlt, label: 'Precautions & Measures' },
     { path: '/settings', icon: faCog, label: 'Settings' }
   ];

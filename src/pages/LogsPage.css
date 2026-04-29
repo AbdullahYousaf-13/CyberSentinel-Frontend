@@ -134,11 +134,15 @@
 }
 
 .logs-table-wrapper {
-  overflow-x: auto;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable both-edges;
 }
 
 .logs-table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   color: #ffffff;
   font-size: 14px;
@@ -157,12 +161,14 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   border-bottom: 2px solid #2a3441;
+  white-space: nowrap;
 }
 
 .logs-table td {
   padding: 15px;
   vertical-align: top;
   border-bottom: 1px solid #1a2332;
+  white-space: nowrap;
 }
 
 .logs-table tbody tr {
@@ -180,8 +186,8 @@
 }
 
 .log-message {
-  min-width: 280px;
-  max-width: 420px;
+  min-width: 720px;
+  max-width: none;
   color: #d9e1ff;
   line-height: 1.5;
 }

@@ -8,19 +8,7 @@ import './Dashboard.css';
 import './LogsPage.css';
 
 const COMPACT_LOG_BREAKPOINT = 960;
-const TABLE_ROW_HEIGHT = 56;
-
-const getResponsivePageSize = (width, height) => {
-  if (width <= 640) return 8;
-  if (width <= COMPACT_LOG_BREAKPOINT) return 10;
-
-  // Favor keeping the full logs page within a typical laptop viewport.
-  const reservedHeight = height <= 800 ? 420 : height <= 920 ? 390 : 360;
-  const estimatedRows = Math.floor(Math.max(260, height - reservedHeight) / TABLE_ROW_HEIGHT);
-  const minRows = height <= 820 ? 5 : 6;
-  const maxRows = height >= 1080 ? 12 : 10;
-  return Math.min(maxRows, Math.max(minRows, estimatedRows));
-};
+const LOGS_PAGE_SIZE = 10;
 
 const LogsPage = () => {
   const [logs, setLogs] = useState([]);
@@ -29,12 +17,7 @@ const LogsPage = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(() =>
-    getResponsivePageSize(
-      typeof window === 'undefined' ? 1280 : window.innerWidth,
-      typeof window === 'undefined' ? 800 : window.innerHeight
-    )
-  );
+  const pageSize = LOGS_PAGE_SIZE;
   const [isCompactScreen, setIsCompactScreen] = useState(
     () => (typeof window === 'undefined' ? false : window.innerWidth <= COMPACT_LOG_BREAKPOINT)
   );
@@ -99,19 +82,10 @@ const LogsPage = () => {
     if (typeof window === 'undefined') return undefined;
     const onResize = () => {
       setIsCompactScreen(window.innerWidth <= COMPACT_LOG_BREAKPOINT);
-      const nextPageSize = getResponsivePageSize(window.innerWidth, window.innerHeight);
-      setPageSize((previousPageSize) => {
-        if (previousPageSize === nextPageSize) {
-          return previousPageSize;
-        }
-        const firstVisibleIndex = (page - 1) * previousPageSize;
-        setPage(Math.floor(firstVisibleIndex / nextPageSize) + 1);
-        return nextPageSize;
-      });
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, [page]);
+  }, []);
 
   const displayLogs = useMemo(() => logs.map(mapLogToDisplay), [logs]);
 
