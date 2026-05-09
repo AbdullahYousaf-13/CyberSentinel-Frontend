@@ -114,6 +114,7 @@ export const resetPassword = async (email, code, newPassword) => {
 };
 
 export const fetchAlerts = async (params = {}) => apiGet('/api/alerts/', params);
+export const fetchAlertCount = async (params = {}) => apiGet('/api/alerts/count', params);
 export const fetchAlertAnalytics = async () => apiGet('/api/alerts/analytics');
 export const fetchLogs = async (params = {}) => apiGet('/api/logs/', params);
 export const fetchLogCount = async (params = {}) => apiGet('/api/logs/count', params);
@@ -128,8 +129,13 @@ export const markFalsePositive = async (alertId, payload = {}) =>
   apiPost(`/api/alerts/${alertId}/mark-false-positive`, payload);
 
 export const createRetrainJob = async (payload) => apiPost('/api/ml/models/retrain', payload);
+export const createBackfillJob = async (payload) => apiPost('/api/ml/backfill', payload);
+export const previewBootstrapDataset = async (payload) => apiPost('/api/ml/bootstrap/preview', payload);
+export const importBootstrapReviews = async (payload) => apiPost('/api/ml/bootstrap/reviews/import', payload);
 export const listRetrainJobs = async (params = {}) => apiGet('/api/ml/models/retrain-jobs', params);
 export const fetchRetrainJob = async (jobId) => apiGet(`/api/ml/models/retrain-jobs/${jobId}`);
+export const listBackfillJobs = async (params = {}) => apiGet('/api/ml/backfill-jobs', params);
+export const fetchBackfillJob = async (jobId) => apiGet(`/api/ml/backfill-jobs/${jobId}`);
 export const listModelVersions = async () => apiGet('/api/ml/models/versions');
 export const rollbackModelVersion = async (targetVersion) =>
   apiPost('/api/ml/models/rollback', { target_version: targetVersion });

@@ -49,15 +49,16 @@ export const formatNetworkTuple = (network) => {
 };
 
 export const mapAlertToDisplay = (alert, linkedLog) => {
-  const rawEventTime = linkedLog?.event_time || linkedLog?.timestamp;
+  const context = alert?.log_context || linkedLog || {};
+  const rawEventTime = context?.event_time || context?.timestamp;
   const rawContext = {
-    eventId: linkedLog?.event_id || linkedLog?.id || 'N/A',
+    eventId: context?.event_id || context?.id || 'N/A',
     eventTime: rawEventTime ? new Date(rawEventTime).toLocaleString() : 'N/A',
-    agentName: linkedLog?.agent_name || 'N/A',
-    eventOrigin: linkedLog?.event_origin || 'N/A',
-    decoderName: linkedLog?.decoder_name || 'N/A',
-    network: formatNetworkTuple(linkedLog?.network),
-    message: linkedLog?.message_normalized || linkedLog?.message || 'N/A'
+    agentName: context?.agent_name || 'N/A',
+    eventOrigin: context?.event_origin || 'N/A',
+    decoderName: context?.decoder_name || 'N/A',
+    network: formatNetworkTuple(context?.network),
+    message: context?.message_normalized || context?.message || 'N/A'
   };
 
   return {

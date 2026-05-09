@@ -4,7 +4,7 @@ import { faSearch, faDownload } from '@fortawesome/free-solid-svg-icons';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import AlertsTable from '../components/dashboard/AlertsTable';
-import { confirmKnownAttack, fetchAlerts, fetchLogs, fetchMe, markFalsePositive } from '../services/api';
+import { confirmKnownAttack, fetchAlertCount, fetchAlerts, fetchMe, markFalsePositive } from '../services/api';
 import { mapAlertToDisplay } from '../utils/securityViewMappers';
 import './Page.css';
 import './AlertsPage.css';
@@ -14,7 +14,7 @@ const PAGE_SIZE = 10;
 const AlertsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [alerts, setAlerts] = useState([]);
-  const [logsMap, setLogsMap] = useState(new Map());
+  const [alertTotal, setAlertTotal] = useState(0);
   const [severityFilter, setSeverityFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [offset, setOffset] = useState(0);
@@ -28,22 +28,21 @@ const AlertsPage = () => {
     setIsLoading(true);
     setError('');
     try {
-      const [alertsData, logsData, me] = await Promise.all([
+      const [alertsData, alertCountData, me] = await Promise.all([
         fetchAlerts({
           limit: PAGE_SIZE,
           offset,
           severity: severityFilter || undefined,
           alert_type: typeFilter || undefined
         }),
-        fetchLogs({ limit: 200, offset: 0 }),
+        fetchAlertCount({
+          severity: severityFilter || undefined,
+          alert_type: typeFilter || undefined
+        }),
         fetchMe()
       ]);
-      const map = new Map();
-      logsData.forEach((log) => {
-        map.set(log.id, log);
-      });
-      setLogsMap(map);
       setAlerts(alertsData);
+      setAlertTotal(typeof alertCountData?.total === 'number' ? alertCountData.total : 0);
       setIsAdmin(Boolean(me && me.is_admin));
     } catch (err) {
       setError('Failed to load alerts. Check your token or backend status.');
@@ -58,10 +57,8 @@ const AlertsPage = () => {
   }, [token, loadAlerts]);
 
   const displayAlerts = useMemo(() => {
-    return alerts.map((alert) => {
-      return mapAlertToDisplay(alert, logsMap.get(alert.log_id));
-    });
-  }, [alerts, logsMap]);
+    return alerts.map((alert) => mapAlertToDisplay(alert));
+  }, [alerts]);
 
   const filtered = useMemo(() => {
     if (!searchQuery) return displayAlerts;
@@ -216,12 +213,12 @@ const AlertsPage = () => {
             Previous Page
           </button>
           <span className="pagination-info">
-            Page {Math.floor(offset / PAGE_SIZE) + 1}
+            Page {Math.floor(offset / PAGE_SIZE) + 1} of {Math.max(1, Math.ceil(alertTotal / PAGE_SIZE))}
           </span>
           <button
             className="action-btn"
             onClick={() => setOffset(offset + PAGE_SIZE)}
-            disabled={alerts.length < PAGE_SIZE}
+            disabled={offset + PAGE_SIZE >= alertTotal}
           >
             Next Page
           </button>

@@ -5,7 +5,7 @@ import AlertCards from '../components/dashboard/AlertCards';
 import AlertsTable from '../components/dashboard/AlertsTable';
 import AttackChart from '../components/dashboard/AttackChart';
 import ThreatPie from '../components/dashboard/ThreatPie';
-import { confirmKnownAttack, fetchAlertAnalytics, fetchAlerts, fetchLogs, markFalsePositive } from '../services/api';
+import { confirmKnownAttack, fetchAlertAnalytics, fetchAlertCount, fetchAlerts, markFalsePositive } from '../services/api';
 import { mapAlertToDisplay } from '../utils/securityViewMappers';
 import './Dashboard.css';
 
@@ -13,12 +13,14 @@ const PAGE_SIZE = 10;
 const ATTACK_TYPE_COLORS = ['#FF4444', '#FF8800', '#FFBB33', '#00C851', '#00E5FF', '#8B5CF6', '#F472B6'];
 
 const Dashboard = () => {
-  const [allAlerts, setAllAlerts] = useState([]);
-  const [logsMap, setLogsMap] = useState(new Map());
+  const [alerts, setAlerts] = useState([]);
   const [analytics, setAnalytics] = useState({
     trend: { unit: 'day', points: [] },
-    distribution: []
+    distribution: [],
+    severity_counts: { high: 0, medium: 0, low: 0 },
+    total_alerts: 0
   });
+  const [alertTotal, setAlertTotal] = useState(0);
   const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -26,59 +28,24 @@ const Dashboard = () => {
   const [activeSeverity, setActiveSeverity] = useState('total');
   const token = localStorage.getItem('token');
 
-  const fetchAllAlerts = useCallback(async () => {
-    const BATCH_SIZE = 200;
-    const MAX_BATCHES = 50;
-    let currentOffset = 0;
-    let batches = 0;
-    const collected = [];
-
-    while (batches < MAX_BATCHES) {
-      const chunk = await fetchAlerts({ limit: BATCH_SIZE, offset: currentOffset });
-      collected.push(...chunk);
-      if (chunk.length < BATCH_SIZE) break;
-      currentOffset += BATCH_SIZE;
-      batches += 1;
-    }
-    return collected;
-  }, []);
-
-  const fetchAllLogs = useCallback(async () => {
-    const BATCH_SIZE = 200;
-    const MAX_BATCHES = 50;
-    let currentOffset = 0;
-    let batches = 0;
-    const collected = [];
-
-    while (batches < MAX_BATCHES) {
-      const chunk = await fetchLogs({ limit: BATCH_SIZE, offset: currentOffset });
-      collected.push(...chunk);
-      if (chunk.length < BATCH_SIZE) break;
-      currentOffset += BATCH_SIZE;
-      batches += 1;
-    }
-    return collected;
-  }, []);
-
   const loadAlerts = useCallback(async () => {
     setIsLoading(true);
     setError('');
     try {
-      const [alertsData, logsData, analyticsData] = await Promise.all([
-        fetchAllAlerts(),
-        fetchAllLogs(),
+      const severityFilter = activeSeverity !== 'total' ? activeSeverity : undefined;
+      const [alertsData, alertCountData, analyticsData] = await Promise.all([
+        fetchAlerts({ limit: PAGE_SIZE, offset, severity: severityFilter }),
+        fetchAlertCount({ severity: severityFilter }),
         fetchAlertAnalytics()
       ]);
-      const map = new Map();
-      logsData.forEach((log) => {
-        map.set(log.id, log);
-      });
-      setLogsMap(map);
-      setAllAlerts(alertsData);
+      setAlerts(alertsData || []);
+      setAlertTotal(typeof alertCountData?.total === 'number' ? alertCountData.total : 0);
       setAnalytics(
         analyticsData || {
           trend: { unit: 'day', points: [] },
-          distribution: []
+          distribution: [],
+          severity_counts: { high: 0, medium: 0, low: 0 },
+          total_alerts: 0
         }
       );
     } catch (err) {
@@ -86,7 +53,7 @@ const Dashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [fetchAllAlerts, fetchAllLogs]);
+  }, [activeSeverity, offset]);
 
   useEffect(() => {
     if (!token) return;
@@ -94,38 +61,18 @@ const Dashboard = () => {
   }, [token, loadAlerts]);
 
   const displayAlerts = useMemo(() => {
-    return allAlerts.map((alert) => {
-      return mapAlertToDisplay(alert, logsMap.get(alert.log_id));
-    });
-  }, [allAlerts, logsMap]);
-
-  const filteredAlerts = useMemo(() => {
-    if (activeSeverity === 'total') return displayAlerts;
-    if (activeSeverity === 'high') {
-      return displayAlerts.filter((alert) =>
-        ['high', 'critical'].includes(alert.severity.toLowerCase())
-      );
-    }
-    return displayAlerts.filter(
-      (alert) => alert.severity.toLowerCase() === activeSeverity
-    );
-  }, [displayAlerts, activeSeverity]);
-
-  const pagedAlerts = useMemo(() => {
-    return filteredAlerts.slice(offset, offset + PAGE_SIZE);
-  }, [filteredAlerts, offset]);
+    return alerts.map((alert) => mapAlertToDisplay(alert));
+  }, [alerts]);
 
   const alertStats = useMemo(() => {
-    const stats = { total: 0, high: 0, medium: 0, low: 0 };
-    allAlerts.forEach((alert) => {
-      stats.total += 1;
-      const severity = (alert.severity || '').toLowerCase();
-      if (severity === 'high' || severity === 'critical') stats.high += 1;
-      else if (severity === 'medium') stats.medium += 1;
-      else stats.low += 1;
-    });
-    return stats;
-  }, [allAlerts]);
+    const counts = analytics?.severity_counts || {};
+    return {
+      total: analytics?.total_alerts || 0,
+      high: counts.high || 0,
+      medium: counts.medium || 0,
+      low: counts.low || 0
+    };
+  }, [analytics]);
 
   const attackTrendsData = useMemo(() => {
     const points = analytics?.trend?.points || [];
@@ -194,7 +141,7 @@ const Dashboard = () => {
           <div className="dashboard-warning">Loading alerts...</div>
         ) : (
           <AlertsTable
-            alerts={pagedAlerts}
+            alerts={displayAlerts}
             showSeverity
             onConfirmKnown={handleConfirmKnown}
             onMarkFalsePositive={handleMarkFalsePositive}
@@ -212,12 +159,12 @@ const Dashboard = () => {
             Previous Page
           </button>
           <span className="dashboard-page-info">
-            Page {Math.floor(offset / PAGE_SIZE) + 1} of {Math.max(1, Math.ceil(filteredAlerts.length / PAGE_SIZE))}
+            Page {Math.floor(offset / PAGE_SIZE) + 1} of {Math.max(1, Math.ceil(alertTotal / PAGE_SIZE))}
           </span>
           <button
             className="dashboard-btn"
             onClick={() => setOffset(offset + PAGE_SIZE)}
-            disabled={offset + PAGE_SIZE >= filteredAlerts.length}
+            disabled={offset + PAGE_SIZE >= alertTotal}
           >
             Next Page
           </button>
