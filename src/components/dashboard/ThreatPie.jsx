@@ -27,6 +27,7 @@ const ThreatPie = ({ data }) => {
             cy="50%"
             labelLine={false}
             label={false}
+            innerRadius={50}
             outerRadius={88}
             minAngle={3}
             paddingAngle={1}

@@ -4,6 +4,9 @@
   border-radius: 12px;
   padding: 25px;
   min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .section-title {
@@ -13,9 +16,18 @@
   margin-bottom: 20px;
 }
 
+.attack-chart-body {
+  flex: 1 1 auto;
+  min-height: 320px;
+}
+
 @media (max-width: 768px) {
   .attack-chart-container {
     padding: 15px;
+  }
+
+  .attack-chart-body {
+    min-height: 260px;
   }
 }
 
