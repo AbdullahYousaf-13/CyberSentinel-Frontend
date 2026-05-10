@@ -4,7 +4,7 @@ import { faSearch, faDownload } from '@fortawesome/free-solid-svg-icons';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
 import AlertsTable from '../components/dashboard/AlertsTable';
-import { confirmKnownAttack, fetchAlerts, fetchLogs, fetchMe, markFalsePositive } from '../services/api';
+import { confirmKnownAttack, fetchAlerts, fetchMe, markFalsePositive } from '../services/api';
 import { mapAlertToDisplay } from '../utils/securityViewMappers';
 import './Page.css';
 import './AlertsPage.css';
@@ -14,7 +14,6 @@ const PAGE_SIZE = 10;
 const AlertsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [alerts, setAlerts] = useState([]);
-  const [logsMap, setLogsMap] = useState(new Map());
   const [severityFilter, setSeverityFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [offset, setOffset] = useState(0);
@@ -28,21 +27,15 @@ const AlertsPage = () => {
     setIsLoading(true);
     setError('');
     try {
-      const [alertsData, logsData, me] = await Promise.all([
+      const [alertsData, me] = await Promise.all([
         fetchAlerts({
           limit: PAGE_SIZE,
           offset,
           severity: severityFilter || undefined,
           alert_type: typeFilter || undefined
         }),
-        fetchLogs({ limit: 200, offset: 0 }),
         fetchMe()
       ]);
-      const map = new Map();
-      logsData.forEach((log) => {
-        map.set(log.id, log);
-      });
-      setLogsMap(map);
       setAlerts(alertsData);
       setIsAdmin(Boolean(me && me.is_admin));
     } catch (err) {
@@ -58,10 +51,8 @@ const AlertsPage = () => {
   }, [token, loadAlerts]);
 
   const displayAlerts = useMemo(() => {
-    return alerts.map((alert) => {
-      return mapAlertToDisplay(alert, logsMap.get(alert.log_id));
-    });
-  }, [alerts, logsMap]);
+    return alerts.map((alert) => mapAlertToDisplay(alert));
+  }, [alerts]);
 
   const filtered = useMemo(() => {
     if (!searchQuery) return displayAlerts;

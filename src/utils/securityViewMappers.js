@@ -49,15 +49,17 @@ export const formatNetworkTuple = (network) => {
 };
 
 export const mapAlertToDisplay = (alert, linkedLog) => {
-  const rawEventTime = linkedLog?.event_time || linkedLog?.timestamp;
+  const summary = alert?.metadata?.log_summary || {};
+  const rawEventTime = summary?.event_time || linkedLog?.event_time || linkedLog?.timestamp;
+  const summaryNetwork = summary?.network && typeof summary.network === 'object' ? summary.network : null;
   const rawContext = {
-    eventId: linkedLog?.event_id || linkedLog?.id || 'N/A',
+    eventId: summary?.event_id || linkedLog?.event_id || linkedLog?.id || 'N/A',
     eventTime: rawEventTime ? new Date(rawEventTime).toLocaleString() : 'N/A',
-    agentName: linkedLog?.agent_name || 'N/A',
-    eventOrigin: linkedLog?.event_origin || 'N/A',
-    decoderName: linkedLog?.decoder_name || 'N/A',
-    network: formatNetworkTuple(linkedLog?.network),
-    message: linkedLog?.message_normalized || linkedLog?.message || 'N/A'
+    agentName: summary?.agent_name || linkedLog?.agent_name || 'N/A',
+    eventOrigin: summary?.event_origin || linkedLog?.event_origin || 'N/A',
+    decoderName: summary?.decoder_name || linkedLog?.decoder_name || 'N/A',
+    network: formatNetworkTuple(summaryNetwork || linkedLog?.network),
+    message: summary?.message || linkedLog?.message_normalized || linkedLog?.message || 'N/A'
   };
 
   return {
