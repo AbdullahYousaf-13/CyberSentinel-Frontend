@@ -44,8 +44,8 @@ test('mapLogToDisplay derives new fields from legacy context when missing', () =
   expect(row.sourceIp).toBe('203.0.113.10');
   expect(row.destinationIp).toBe('10.0.0.5');
   expect(row.channel).toBe('Network');
-  expect(row.message.length).toBe(60);
-  expect(row.message.endsWith('...')).toBe(true);
+  expect(row.message.length).toBe(80);
+  expect(row.message.endsWith('...')).toBe(false);
   expect(row.messageFull).toBe('A'.repeat(80));
 });
 
@@ -53,28 +53,43 @@ test('mapAlertToDisplay keeps AI columns and raw context in details payload', ()
   const alertRow = mapAlertToDisplay(
     {
       id: 'alert-1',
+      incident_id: 'alert-1',
       created_at: '2026-04-20T12:00:00Z',
+      opened_at: '2026-04-20T12:00:00Z',
+      last_seen_at: '2026-04-20T12:05:00Z',
+      event_count: 1,
+      source_ip: '203.0.113.50',
+      destination_ip: '10.0.0.5',
       alert_type: 'known_attack',
       classification: 'SSH_BRUTE',
-      anomaly_score: 0.98123,
-      model_version: 'rf-2026-04-20',
-      severity: 'high'
+      model_versions_seen: ['rf-2026-04-20'],
+      severity: 'high',
+      children: [
+        {
+          log_id: 'log-1',
+          event_time: '2026-04-20T11:59:59Z',
+          anomaly_score: 0.98123,
+          model_version: 'rf-2026-04-20',
+          metadata: {
+            log_summary: {
+              event_id: '1713614400.200',
+              event_time: '2026-04-20T11:59:59Z',
+              agent_name: 'prod-web-01',
+              event_origin: '/var/log/auth.log',
+              decoder_name: 'sshd',
+              network: {
+                srcip: '203.0.113.50',
+                srcport: '51234',
+                dstip: '10.0.0.5',
+                dstport: '22'
+              },
+              message: 'SSH brute force attempt'
+            }
+          }
+        }
+      ]
     },
-    {
-      id: 'log-1',
-      event_id: '1713614400.200',
-      event_time: '2026-04-20T11:59:59Z',
-      agent_name: 'prod-web-01',
-      event_origin: '/var/log/auth.log',
-      decoder_name: 'sshd',
-      network: {
-        srcip: '203.0.113.50',
-        srcport: '51234',
-        dstip: '10.0.0.5',
-        dstport: '22'
-      },
-      message_normalized: 'SSH brute force attempt'
-    }
+    null
   );
 
   expect(alertRow.alertType).toBe('known_attack');
@@ -89,15 +104,31 @@ test('mapAlertToDisplay keeps classification as N/A when model label is missing'
   const anomalyRow = mapAlertToDisplay(
     {
       id: 'alert-2',
+      incident_id: 'alert-2',
       created_at: '2026-04-20T13:00:00Z',
+      opened_at: '2026-04-20T13:00:00Z',
+      last_seen_at: '2026-04-20T13:00:00Z',
+      event_count: 1,
+      source_ip: '__missing_ip__',
+      destination_ip: '__missing_ip__',
       alert_type: 'anomaly',
       classification: null,
-      anomaly_score: 0.7,
-      model_version: 'cloud-api',
-      severity: 'medium'
+      model_versions_seen: ['cloud-api'],
+      severity: 'medium',
+      children: [
+        {
+          log_id: 'log-2',
+          event_time: '2026-04-20T13:00:00Z',
+          anomaly_score: 0.7,
+          model_version: 'cloud-api',
+          metadata: {}
+        }
+      ]
     },
     null
   );
 
   expect(anomalyRow.classification).toBe('N/A');
+  expect(anomalyRow.sourceIp).toBe('N/A');
+  expect(anomalyRow.destinationIp).toBe('N/A');
 });

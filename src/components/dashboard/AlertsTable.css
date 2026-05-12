@@ -122,6 +122,24 @@
   }
 }
 
+.alert-children-panel {
+  background: #0f1720;
+  border: 1px solid #223446;
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #c9d6e2;
+}
+
+.alert-children-panel ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.alert-children-panel li {
+  margin: 6px 0;
+  font-size: 0.86rem;
+}
+
 @media (max-width: 600px) {
   .col-classification,
   .col-ai-score,

@@ -1,7 +1,8 @@
 const toDisplay = (value, fallback = 'N/A') => {
   if (value === null || value === undefined) return fallback;
   const text = String(value).trim();
-  return text || fallback;
+  if (!text || text === '__missing_ip__') return fallback;
+  return text;
 };
 
 const classifySourceApp = (eventOrigin, source) => {
@@ -49,9 +50,12 @@ export const formatNetworkTuple = (network) => {
 };
 
 export const mapAlertToDisplay = (alert, linkedLog) => {
-  const summary = alert?.metadata?.log_summary || {};
+  const children = Array.isArray(alert?.children) ? alert.children : [];
+  const latestChild = children.length ? children[children.length - 1] : null;
+  const summary = latestChild?.metadata?.log_summary || alert?.metadata?.log_summary || {};
   const rawEventTime = summary?.event_time || linkedLog?.event_time || linkedLog?.timestamp;
   const summaryNetwork = summary?.network && typeof summary.network === 'object' ? summary.network : null;
+  const latestModelVersion = latestChild?.model_version || (Array.isArray(alert?.model_versions_seen) ? alert.model_versions_seen[alert.model_versions_seen.length - 1] : null);
   const rawContext = {
     eventId: summary?.event_id || linkedLog?.event_id || linkedLog?.id || 'N/A',
     eventTime: rawEventTime ? new Date(rawEventTime).toLocaleString() : 'N/A',
@@ -62,14 +66,41 @@ export const mapAlertToDisplay = (alert, linkedLog) => {
     message: summary?.message || linkedLog?.message_normalized || linkedLog?.message || 'N/A'
   };
 
+  const severityRank = { low: 1, medium: 2, high: 3, critical: 4 };
+  const rankSeverity = ['low', 'low', 'medium', 'high', 'critical'];
+  const childSeverityRanks = children
+    .map((item) => {
+      const childSeverity = severityRank[String(item?.severity || '').toLowerCase()];
+      if (childSeverity) return childSeverity;
+      return severityRank[String(alert?.severity || '').toLowerCase()] || 1;
+    });
+  const averageSeverityRank = childSeverityRanks.length
+    ? (childSeverityRanks.reduce((sum, value) => sum + value, 0) / childSeverityRanks.length)
+    : (severityRank[String(alert?.severity || '').toLowerCase()] || 1);
+  const roundedAverageSeverityRank = Math.max(1, Math.min(4, Math.round(averageSeverityRank)));
+
   return {
     id: alert.id,
-    detectedAt: new Date(alert.created_at).toLocaleString(),
+    incidentId: alert.incident_id || alert.id,
+    detectedAt: new Date(alert.opened_at || alert.created_at).toLocaleString(),
+    lastSeenAt: new Date(alert.last_seen_at || alert.created_at).toLocaleString(),
+    eventCount: Number(alert.event_count || 0),
+    sourceIp: toDisplay(alert.source_ip),
+    destinationIp: toDisplay(alert.destination_ip),
+    status: toDisplay(alert.status, 'open'),
     alertType: normalizeAlertType(alert.alert_type),
     classification: toDisplay(alert.classification),
-    aiScore: formatAiScore(alert.anomaly_score),
-    modelVersion: toDisplay(alert.model_version),
-    severity: toDisplay(alert.severity, 'low').toLowerCase(),
+    aiScore: formatAiScore(latestChild?.anomaly_score),
+    modelVersion: toDisplay(latestModelVersion),
+    severity: rankSeverity[roundedAverageSeverityRank] || 'low',
+    children: children.map((item) => ({
+      logId: toDisplay(item?.log_id),
+      eventTime: item?.event_time ? new Date(item.event_time).toLocaleString() : 'N/A',
+      severity: toDisplay(item?.severity, 'low'),
+      modelVersion: toDisplay(item?.model_version),
+      aiScore: formatAiScore(item?.anomaly_score),
+      message: toDisplay(item?.metadata?.log_summary?.message)
+    })),
     rawContext
   };
 };

@@ -27,19 +27,21 @@ const AlertsPage = () => {
     setIsLoading(true);
     setError('');
     try {
-      const [alertsData, me] = await Promise.all([
-        fetchAlerts({
-          limit: PAGE_SIZE,
-          offset,
-          severity: severityFilter || undefined,
-          alert_type: typeFilter || undefined
-        }),
-        fetchMe()
-      ]);
+      const alertsData = await fetchAlerts({
+        limit: PAGE_SIZE,
+        offset,
+        severity: severityFilter || undefined,
+        alert_type: typeFilter || undefined
+      });
       setAlerts(alertsData);
-      setIsAdmin(Boolean(me && me.is_admin));
+      try {
+        const me = await fetchMe();
+        setIsAdmin(Boolean(me && me.is_admin));
+      } catch (_err) {
+        setIsAdmin(false);
+      }
     } catch (err) {
-      setError('Failed to load alerts. Check your token or backend status.');
+      setError(`Failed to load alerts: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -59,11 +61,14 @@ const AlertsPage = () => {
     const query = searchQuery.toLowerCase();
     return displayAlerts.filter((a) => 
       a.id.toLowerCase().includes(query) ||
+      a.incidentId.toLowerCase().includes(query) ||
       a.alertType.toLowerCase().includes(query) ||
       a.classification.toLowerCase().includes(query) ||
       a.severity.toLowerCase().includes(query) ||
       a.modelVersion.toLowerCase().includes(query) ||
-      a.aiScore.toLowerCase().includes(query)
+      a.aiScore.toLowerCase().includes(query) ||
+      a.sourceIp.toLowerCase().includes(query) ||
+      a.destinationIp.toLowerCase().includes(query)
     );
   }, [searchQuery, displayAlerts]);
 
@@ -79,7 +84,7 @@ const AlertsPage = () => {
     if (!classification) return;
     try {
       await confirmKnownAttack(alert.id, { classification: classification.trim() });
-      setActionMessage(`Alert ${alert.id} marked as known attack.`);
+      setActionMessage(`Incident ${alert.incidentId} marked as known attack.`);
       await loadAlerts();
       setTimeout(() => setActionMessage(''), 3000);
     } catch (err) {
@@ -91,12 +96,16 @@ const AlertsPage = () => {
   const handleDownloadCSV = () => {
     // CSV download logic
     const csvContent = [
-      ['Alert ID', 'Detected At', 'Alert Type', 'Classification', 'Severity', 'AI Score', 'Model Version'].join(','),
+      ['Incident ID', 'Opened At', 'Last Seen', 'Event Count', 'Alert Type', 'Classification', 'Source IP', 'Destination IP', 'Severity', 'AI Score', 'Model Version'].join(','),
       ...filtered.map(a => [
-        a.id,
+        a.incidentId,
         a.detectedAt,
+        a.lastSeenAt,
+        a.eventCount,
         a.alertType,
         a.classification,
+        a.sourceIp,
+        a.destinationIp,
         a.severity,
         a.aiScore,
         a.modelVersion
@@ -117,7 +126,7 @@ const AlertsPage = () => {
     if (notes === null) return;
     try {
       await markFalsePositive(alert.id, { notes: notes.trim() || undefined });
-      setActionMessage(`Alert ${alert.id} marked false positive and suppression enabled.`);
+      setActionMessage(`Incident ${alert.incidentId} marked false positive and suppression enabled.`);
       await loadAlerts();
       setTimeout(() => setActionMessage(''), 3500);
     } catch (err) {
@@ -144,7 +153,7 @@ const AlertsPage = () => {
             <FontAwesomeIcon icon={faSearch} className="search-icon" />
             <input
               type="text"
-              placeholder="Search by alert ID, type, classification, severity, score, or model"
+              placeholder="Search by incident ID, type, source/destination IP, classification, severity, score, or model"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="alerts-search-input"

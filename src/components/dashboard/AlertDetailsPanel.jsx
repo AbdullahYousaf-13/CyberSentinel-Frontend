@@ -51,6 +51,14 @@ const AlertDetailsPanel = ({ isOpen, onClose, alert, onMarkKnown = null, onMarkF
               <span className="alert-detail-value">{alert.detectedAt}</span>
             </div>
             <div className="alert-detail-row">
+              <span className="alert-detail-label">Last Seen:</span>
+              <span className="alert-detail-value">{alert.lastSeenAt}</span>
+            </div>
+            <div className="alert-detail-row">
+              <span className="alert-detail-label">Events:</span>
+              <span className="alert-detail-value">{alert.eventCount}</span>
+            </div>
+            <div className="alert-detail-row">
               <span className="alert-detail-label">Alert Type:</span>
               <span className="alert-detail-value">{alert.alertType}</span>
             </div>
@@ -93,6 +101,24 @@ const AlertDetailsPanel = ({ isOpen, onClose, alert, onMarkKnown = null, onMarkF
               <span className="alert-detail-label">Network:</span>
               <span className="alert-detail-value">{alert.rawContext?.network || 'N/A'}</span>
             </div>
+          </div>
+          <div className="alert-detail-section">
+            <h4>Linked Events</h4>
+            {alert.children?.length ? (
+              <div className="alert-children-panel">
+                <ul>
+                  {alert.children.map((child) => (
+                    <li key={`${alert.id}-${child.logId}-${child.eventTime}`}>
+                      {child.eventTime} | {child.logId} | {child.severity} | {child.aiScore} | {child.message}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <div className="alert-detail-row">
+                <span className="alert-detail-value">No linked events.</span>
+              </div>
+            )}
           </div>
           <div className="alert-detail-section">
             <h4>Message</h4>

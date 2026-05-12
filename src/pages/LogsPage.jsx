@@ -17,6 +17,7 @@ const LogsPage = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(1);
+  const [pageInput, setPageInput] = useState('1');
   const pageSize = LOGS_PAGE_SIZE;
   const [isCompactScreen, setIsCompactScreen] = useState(
     () => (typeof window === 'undefined' ? false : window.innerWidth <= COMPACT_LOG_BREAKPOINT)
@@ -113,6 +114,20 @@ const LogsPage = () => {
       loadLogs();
     }
   };
+
+  const handlePageInputSubmit = () => {
+    const parsedPage = Number.parseInt(pageInput, 10);
+    if (Number.isNaN(parsedPage)) {
+      setPageInput(String(page));
+      return;
+    }
+    const clampedPage = Math.min(totalPages, Math.max(1, parsedPage));
+    setPage(clampedPage);
+  };
+
+  useEffect(() => {
+    setPageInput(String(page));
+  }, [page]);
 
   return (
     <div className="dashboard-layout dashboard-page-layout">
@@ -221,11 +236,6 @@ const LogsPage = () => {
           <div className="logs-panel-header">
             <div>
               <h2 className="logs-section-title">Recent Logs</h2>
-              <p className="logs-section-copy">
-                {isCompactScreen
-                  ? 'Smaller screens switch to stacked cards to keep event context readable.'
-                  : 'Larger screens keep the wide table for fast archive-event scanning.'}
-              </p>
             </div>
             <div className="logs-results-meta">{pageSummaryText}</div>
           </div>
@@ -328,6 +338,33 @@ const LogsPage = () => {
           >
             Next
           </button>
+          <div className="dashboard-page-jump">
+            <label className="dashboard-page-jump-label" htmlFor="logs-page-input">Go to</label>
+            <input
+              id="logs-page-input"
+              className="dashboard-page-jump-input"
+              type="number"
+              min="1"
+              max={totalPages}
+              inputMode="numeric"
+              value={pageInput}
+              onChange={(e) => setPageInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handlePageInputSubmit();
+                }
+              }}
+              disabled={isLoading}
+            />
+            <button
+              className="dashboard-btn"
+              type="button"
+              onClick={handlePageInputSubmit}
+              disabled={isLoading}
+            >
+              Go
+            </button>
+          </div>
         </div>
       </main>
     </div>

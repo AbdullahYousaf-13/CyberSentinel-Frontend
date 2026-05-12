@@ -55,7 +55,7 @@ test('uses analytics API data for charts and keeps alerts pagination fetch', asy
 
   await waitFor(() => {
     expect(fetchAlertAnalytics).toHaveBeenCalledTimes(1);
-    expect(fetchAlerts).toHaveBeenCalledWith(expect.objectContaining({ limit: 200, offset: 0 }));
+    expect(fetchAlerts).toHaveBeenCalledWith(expect.objectContaining({ limit: 10, offset: 0 }));
   });
 
   await waitFor(() => {
@@ -71,7 +71,7 @@ test('refresh reloads analytics endpoint', async () => {
 
   await waitFor(() => expect(fetchAlertAnalytics).toHaveBeenCalledTimes(1));
 
-  await userEvent.click(screen.getByRole('button', { name: /Refresh/i }));
+  await userEvent.click(screen.getByRole('button', { name: /^Refresh Analytics$/i }));
 
   await waitFor(() => expect(fetchAlertAnalytics).toHaveBeenCalledTimes(2));
 });

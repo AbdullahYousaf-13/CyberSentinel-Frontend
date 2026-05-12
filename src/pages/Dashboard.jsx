@@ -27,6 +27,7 @@ const Dashboard = () => {
   const [analyticsError, setAnalyticsError] = useState('');
   const [actionMessage, setActionMessage] = useState('');
   const [activeSeverity, setActiveSeverity] = useState('total');
+  const [pageInput, setPageInput] = useState('1');
   const token = localStorage.getItem('token');
   const offset = (page - 1) * PAGE_SIZE;
 
@@ -38,7 +39,7 @@ const Dashboard = () => {
       const alertsData = await fetchAlerts({ limit: PAGE_SIZE, offset, severity });
       setAlerts(alertsData);
     } catch (err) {
-      setAlertsError('Failed to load dashboard alerts.');
+      setAlertsError(`Failed to load dashboard alerts: ${err.message}`);
     } finally {
       setIsAlertsLoading(false);
     }
@@ -78,6 +79,16 @@ const Dashboard = () => {
   const alertStats = useMemo(
     () => analytics?.severity_counts || { total: 0, high: 0, medium: 0, low: 0 },
     [analytics]
+  );
+  const totalAlertsForActiveFilter = useMemo(() => {
+    if (activeSeverity === 'total') return alertStats.total || 0;
+    if (activeSeverity === 'high') return alertStats.high || 0;
+    if (activeSeverity === 'medium') return alertStats.medium || 0;
+    return alertStats.low || 0;
+  }, [activeSeverity, alertStats]);
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(totalAlertsForActiveFilter / PAGE_SIZE)),
+    [totalAlertsForActiveFilter]
   );
 
   const attackTrendsData = useMemo(() => {
@@ -128,6 +139,26 @@ const Dashboard = () => {
     }
   };
 
+  const handlePageInputSubmit = () => {
+    const parsedPage = Number.parseInt(pageInput, 10);
+    if (Number.isNaN(parsedPage)) {
+      setPageInput(String(page));
+      return;
+    }
+    const clampedPage = Math.min(totalPages, Math.max(1, parsedPage));
+    setPage(clampedPage);
+  };
+
+  useEffect(() => {
+    setPageInput(String(page));
+  }, [page]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
   return (
     <div className="dashboard-layout dashboard-page-layout">
       <Header />
@@ -169,15 +200,36 @@ const Dashboard = () => {
             Previous Page
           </button>
           <span className="dashboard-page-info">
-            Page {page}
+            Page {page} of {totalPages}
           </span>
           <button
             className="dashboard-btn"
-            onClick={() => setPage((previousPage) => previousPage + 1)}
-            disabled={alerts.length < PAGE_SIZE}
+            onClick={() => setPage((previousPage) => Math.min(totalPages, previousPage + 1))}
+            disabled={page >= totalPages}
           >
             Next Page
           </button>
+          <div className="dashboard-page-jump">
+            <label className="dashboard-page-jump-label" htmlFor="dashboard-page-input">Go to</label>
+            <input
+              id="dashboard-page-input"
+              className="dashboard-page-jump-input"
+              type="number"
+              min="1"
+              max={totalPages}
+              inputMode="numeric"
+              value={pageInput}
+              onChange={(e) => setPageInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handlePageInputSubmit();
+                }
+              }}
+            />
+            <button className="dashboard-btn" onClick={handlePageInputSubmit}>
+              Go
+            </button>
+          </div>
         </div>
         <div className="charts-container">
           {isAnalyticsLoading && <div className="dashboard-warning">Loading analytics...</div>}

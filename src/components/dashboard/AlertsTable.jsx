@@ -32,10 +32,11 @@ const AlertsTable = ({
           <table className="alerts-table">
             <thead>
               <tr>
-                <th className="col-alert-id">Alert ID</th>
-                <th className="col-detected-at">Detected At</th>
+                <th className="col-alert-id">Incident ID</th>
                 <th className="col-alert-type">Alert Type</th>
                 <th className="col-classification">Classification</th>
+                <th className="col-classification">Source</th>
+                <th className="col-classification">Destination</th>
                 {showSeverity && <th className="col-severity">Severity</th>}
                 <th className="col-ai-score">AI Score</th>
                 <th className="col-model-version">Model Version</th>
@@ -44,26 +45,29 @@ const AlertsTable = ({
             </thead>
             <tbody>
               {alerts.map((alert) => (
-                <tr key={alert.id}>
-                  <td className="alert-id col-alert-id">{alert.id}</td>
-                  <td className="col-detected-at">{alert.detectedAt}</td>
-                  <td className="col-alert-type">{alert.alertType}</td>
-                  <td className="col-classification">{alert.classification}</td>
-                  {showSeverity && (
-                    <td className="col-severity">
-                      <span className={`severity-badge ${severityClassByValue[alert.severity] || 'badge-low'}`}>
-                        {String(alert.severity || 'low').toUpperCase()}
-                      </span>
+                <React.Fragment key={alert.id}>
+                  <tr>
+                    <td className="alert-id col-alert-id">{alert.incidentId}</td>
+                    <td className="col-alert-type">{alert.alertType}</td>
+                    <td className="col-classification">{alert.classification}</td>
+                    <td className="col-classification">{alert.sourceIp}</td>
+                    <td className="col-classification">{alert.destinationIp}</td>
+                    {showSeverity && (
+                      <td className="col-severity">
+                        <span className={`severity-badge ${severityClassByValue[alert.severity] || 'badge-low'}`}>
+                          {String(alert.severity || 'low').toUpperCase()}
+                        </span>
+                      </td>
+                    )}
+                    <td className="col-ai-score">{alert.aiScore}</td>
+                    <td className="col-model-version">{alert.modelVersion}</td>
+                    <td className="col-action">
+                      <button className="details-btn" onClick={() => handleDetailsClick(alert)}>
+                        Details
+                      </button>
                     </td>
-                  )}
-                  <td className="col-ai-score">{alert.aiScore}</td>
-                  <td className="col-model-version">{alert.modelVersion}</td>
-                  <td className="col-action">
-                    <button className="details-btn" onClick={() => handleDetailsClick(alert)}>
-                      Details
-                    </button>
-                  </td>
-                </tr>
+                  </tr>
+                </React.Fragment>
               ))}
             </tbody>
           </table>
