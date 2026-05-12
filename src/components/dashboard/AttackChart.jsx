@@ -16,7 +16,7 @@ const AttackChart = ({ data }) => {
     <div className="attack-chart-container">
       <h2 className="section-title">Attack Trends</h2>
       <div className="attack-chart-body">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={260}>
           <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1a2332" />
             <XAxis

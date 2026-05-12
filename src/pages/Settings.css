@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: 20px;
   max-width: 100%;
+  min-width: 0;
 }
 
 .setting-card {
@@ -14,6 +15,9 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .setting-card.is-disabled {
@@ -23,6 +27,39 @@
 
 .setting-card-content {
   flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+.setting-card-content > * {
+  max-width: 100%;
+}
+
+.table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.alerts-table {
+  width: max-content;
+  min-width: 100%;
+}
+
+.alerts-table th,
+.alerts-table td {
+  white-space: nowrap;
+}
+
+.alert-id {
+  display: inline-block;
+  max-width: min(45vw, 360px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
 }
 
 .setting-card h2 {
@@ -175,6 +212,7 @@
 
 .model-ops-reason-input {
   width: 100%;
+  max-width: 100%;
   margin-top: 10px;
   padding: 10px 12px;
   background: #0a1326;
@@ -185,6 +223,7 @@
   resize: vertical;
   min-height: 74px;
   line-height: 1.4;
+  box-sizing: border-box;
 }
 
 .model-ops-reason-input:focus {
@@ -308,9 +347,19 @@
 
   .settings-actions {
     justify-content: stretch;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .save-btn {
     width: 100%;
+  }
+
+  .settings-actions .details-btn {
+    margin-left: 0 !important;
+  }
+
+  .alert-id {
+    max-width: 48vw;
   }
 }
