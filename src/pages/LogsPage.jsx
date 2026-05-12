@@ -265,11 +265,11 @@ const LogsPage = () => {
                       <span className="logs-card-value">{log.sourceApp}</span>
                     </div>
                     <div className="logs-card-field">
-                      <span className="logs-card-label">Source IP</span>
+                      <span className="logs-card-label">Source</span>
                       <span className="logs-card-value">{log.sourceIp}</span>
                     </div>
                     <div className="logs-card-field">
-                      <span className="logs-card-label">Destination IP</span>
+                      <span className="logs-card-label">Destination</span>
                       <span className="logs-card-value">{log.destinationIp}</span>
                     </div>
                     <div className="logs-card-field">
@@ -293,8 +293,8 @@ const LogsPage = () => {
                       <th>Event ID</th>
                       <th>Event Time</th>
                       <th>Source App</th>
-                      <th>Source IP</th>
-                      <th>Destination IP</th>
+                      <th>Source</th>
+                      <th>Destination</th>
                       <th>Channel</th>
                       <th>Message</th>
                     </tr>

@@ -85,14 +85,29 @@ export const mapAlertToDisplay = (alert, linkedLog) => {
     : (severityRank[String(alert?.severity || '').toLowerCase()] || 1);
   const roundedAverageSeverityRank = Math.max(1, Math.min(4, Math.round(averageSeverityRank)));
 
+  const resolvedSource = toDisplay(
+    alert.source_ip,
+    toDisplay(
+      summary?.source_ip,
+      toDisplay(summary?.agent_name, toDisplay(summary?.event_origin))
+    )
+  );
+  const resolvedDestination = toDisplay(
+    alert.destination_ip,
+    toDisplay(
+      summary?.destination_ip,
+      toDisplay(summary?.decoder_name, toDisplay(summary?.agent_name))
+    )
+  );
+
   return {
     id: alert.id,
     incidentId: alert.incident_id || alert.id,
     detectedAt: new Date(alert.opened_at || alert.created_at).toLocaleString(),
     lastSeenAt: new Date(alert.last_seen_at || alert.created_at).toLocaleString(),
     eventCount: Number(alert.event_count || 0),
-    sourceIp: toDisplay(alert.source_ip, toDisplay(summary?.source_ip)),
-    destinationIp: toDisplay(alert.destination_ip, toDisplay(summary?.destination_ip)),
+    sourceIp: resolvedSource,
+    destinationIp: resolvedDestination,
     status: toDisplay(alert.status, 'open'),
     alertType: normalizeAlertType(alert.alert_type),
     classification: toDisplay(alert.classification),
