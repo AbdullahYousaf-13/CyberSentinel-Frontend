@@ -79,9 +79,13 @@ const Header = () => {
   const getPageTitle = () => {
     const path = location.pathname;
     if (path === '/dashboard') return 'DASHBOARD';
+    if (path === '/alerts') return 'ALERTS';
     if (path === '/logs') return 'LOGS';
     if (path === '/precautions') return 'PRECAUTIONS & MEASURES';
+    if (path === '/feedback') return 'FEEDBACK';
+    if (path === '/architecture') return 'ARCHITECTURE';
     if (path === '/settings') return 'SETTINGS';
+    if (path === '/model-ops') return 'MODEL OPS';
     return 'DASHBOARD';
   };
 
