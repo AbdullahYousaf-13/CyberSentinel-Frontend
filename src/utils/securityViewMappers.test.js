@@ -132,3 +132,34 @@ test('mapAlertToDisplay keeps classification as N/A when model label is missing'
   expect(anomalyRow.sourceIp).toBe('N/A');
   expect(anomalyRow.destinationIp).toBe('N/A');
 });
+
+test('mapAlertToDisplay falls back to legacy root anomaly_score and model_version', () => {
+  const row = mapAlertToDisplay(
+    {
+      id: 'legacy-1',
+      incident_id: 'legacy-1',
+      created_at: '2026-04-20T13:00:00Z',
+      opened_at: '2026-04-20T13:00:00Z',
+      last_seen_at: '2026-04-20T13:00:00Z',
+      event_count: 1,
+      source_ip: null,
+      destination_ip: null,
+      alert_type: 'known_attack',
+      classification: 'OTHER_ATTACK',
+      model_version: '20260510144302',
+      anomaly_score: 1.0,
+      metadata: {
+        log_summary: {
+          source_ip: '203.0.113.10',
+          destination_ip: '10.0.0.5'
+        }
+      }
+    },
+    null
+  );
+
+  expect(row.aiScore).toBe('1.0000');
+  expect(row.modelVersion).toBe('20260510144302');
+  expect(row.sourceIp).toBe('203.0.113.10');
+  expect(row.destinationIp).toBe('10.0.0.5');
+});

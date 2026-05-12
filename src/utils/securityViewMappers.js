@@ -55,7 +55,13 @@ export const mapAlertToDisplay = (alert, linkedLog) => {
   const summary = latestChild?.metadata?.log_summary || alert?.metadata?.log_summary || {};
   const rawEventTime = summary?.event_time || linkedLog?.event_time || linkedLog?.timestamp;
   const summaryNetwork = summary?.network && typeof summary.network === 'object' ? summary.network : null;
-  const latestModelVersion = latestChild?.model_version || (Array.isArray(alert?.model_versions_seen) ? alert.model_versions_seen[alert.model_versions_seen.length - 1] : null);
+  const latestModelVersion = latestChild?.model_version
+    || (Array.isArray(alert?.model_versions_seen) ? alert.model_versions_seen[alert.model_versions_seen.length - 1] : null)
+    || alert?.model_version
+    || null;
+  const latestAiScore = (typeof latestChild?.anomaly_score === 'number')
+    ? latestChild.anomaly_score
+    : alert?.anomaly_score;
   const rawContext = {
     eventId: summary?.event_id || linkedLog?.event_id || linkedLog?.id || 'N/A',
     eventTime: rawEventTime ? new Date(rawEventTime).toLocaleString() : 'N/A',
@@ -85,12 +91,12 @@ export const mapAlertToDisplay = (alert, linkedLog) => {
     detectedAt: new Date(alert.opened_at || alert.created_at).toLocaleString(),
     lastSeenAt: new Date(alert.last_seen_at || alert.created_at).toLocaleString(),
     eventCount: Number(alert.event_count || 0),
-    sourceIp: toDisplay(alert.source_ip),
-    destinationIp: toDisplay(alert.destination_ip),
+    sourceIp: toDisplay(alert.source_ip, toDisplay(summary?.source_ip)),
+    destinationIp: toDisplay(alert.destination_ip, toDisplay(summary?.destination_ip)),
     status: toDisplay(alert.status, 'open'),
     alertType: normalizeAlertType(alert.alert_type),
     classification: toDisplay(alert.classification),
-    aiScore: formatAiScore(latestChild?.anomaly_score),
+    aiScore: formatAiScore(latestAiScore),
     modelVersion: toDisplay(latestModelVersion),
     severity: rankSeverity[roundedAverageSeverityRank] || 'low',
     children: children.map((item) => ({
