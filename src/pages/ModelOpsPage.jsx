@@ -13,6 +13,8 @@ import {
 import './Page.css';
 import './Settings.css';
 
+const ACTIVE_RETRAIN_STATUSES = new Set(['queued', 'running']);
+
 const ModelOpsPage = () => {
   const [reason, setReason] = useState('');
   const [jobs, setJobs] = useState([]);
@@ -128,6 +130,8 @@ const ModelOpsPage = () => {
     return 'No details available.';
   };
 
+  const hasActiveRetrain = jobs.some((job) => ACTIVE_RETRAIN_STATUSES.has(String(job.status || '').toLowerCase()));
+
   return (
     <div className="dashboard-layout">
       <Header />
@@ -146,10 +150,15 @@ const ModelOpsPage = () => {
                 rows={3}
               />
               <div className="settings-actions" style={{ marginTop: '12px' }}>
-                <button className="details-btn" onClick={handleStartRetrain}>Start Retrain</button>
+                <button className="details-btn" onClick={handleStartRetrain} disabled={hasActiveRetrain}>
+                  Start Retrain
+                </button>
                 <button className="details-btn" onClick={refresh} style={{ marginLeft: '8px' }}>Refresh</button>
               </div>
               {loading && <p className="muted">Loading model ops data...</p>}
+              {hasActiveRetrain && (
+                <p className="muted settings-helper">A retrain job is already active. Refresh to check when it finishes.</p>
+              )}
               {message && <p className="form-info">{message}</p>}
               {error && <p className="form-error">{error}</p>}
             </div>
