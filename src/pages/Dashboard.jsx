@@ -11,6 +11,11 @@ import './Dashboard.css';
 
 const PAGE_SIZE = 10;
 const ATTACK_TYPE_COLORS = ['#FF4444', '#FF8800', '#FFBB33', '#00C851', '#00E5FF', '#8B5CF6', '#F472B6'];
+const DASHBOARD_ALERT_TYPE_FILTERS = [
+  { key: 'all', label: 'All' },
+  { key: 'anomaly', label: 'Anomaly' },
+  { key: 'known_attack', label: 'Known Attack' }
+];
 
 const Dashboard = () => {
   const [alerts, setAlerts] = useState([]);
@@ -27,6 +32,7 @@ const Dashboard = () => {
   const [analyticsError, setAnalyticsError] = useState('');
   const [actionMessage, setActionMessage] = useState('');
   const [activeSeverity, setActiveSeverity] = useState('total');
+  const [activeAlertType, setActiveAlertType] = useState('all');
   const [pageInput, setPageInput] = useState('1');
   const token = localStorage.getItem('token');
   const offset = (page - 1) * PAGE_SIZE;
@@ -36,14 +42,15 @@ const Dashboard = () => {
     setAlertsError('');
     try {
       const severity = activeSeverity === 'total' ? undefined : (activeSeverity === 'high' ? 'high' : activeSeverity);
-      const alertsData = await fetchAlerts({ limit: PAGE_SIZE, offset, severity });
+      const alertType = activeAlertType === 'all' ? undefined : activeAlertType;
+      const alertsData = await fetchAlerts({ limit: PAGE_SIZE, offset, severity, alert_type: alertType });
       setAlerts(alertsData);
     } catch (err) {
       setAlertsError(`Failed to load dashboard alerts: ${err.message}`);
     } finally {
       setIsAlertsLoading(false);
     }
-  }, [offset, activeSeverity]);
+  }, [offset, activeSeverity, activeAlertType]);
 
   const loadAnalytics = useCallback(async () => {
     setIsAnalyticsLoading(true);
@@ -170,11 +177,26 @@ const Dashboard = () => {
         <AlertCards
           stats={alertStats}
           activeFilter={activeSeverity}
-            onSelect={(key) => {
+          onSelect={(key) => {
             setPage(1);
             setActiveSeverity(key);
           }}
         />
+        <div className="dashboard-filter-bar" role="group" aria-label="Alert type filters">
+          {DASHBOARD_ALERT_TYPE_FILTERS.map((filter) => (
+            <button
+              key={filter.key}
+              type="button"
+              className={`dashboard-filter-chip ${activeAlertType === filter.key ? 'active' : ''}`}
+              onClick={() => {
+                setPage(1);
+                setActiveAlertType(filter.key);
+              }}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
         {isAlertsLoading ? (
           <div className="dashboard-warning">Loading alerts...</div>
         ) : (
