@@ -13,6 +13,8 @@ import {
 import './Page.css';
 import './Settings.css';
 
+const ACTIVE_RETRAIN_STATUSES = new Set(['queued', 'running']);
+
 const ModelOpsPage = () => {
   const [reason, setReason] = useState('');
   const [jobs, setJobs] = useState([]);
@@ -44,6 +46,18 @@ const ModelOpsPage = () => {
   useEffect(() => {
     refresh();
   }, []);
+
+  useEffect(() => {
+    if (!jobs.some((job) => ACTIVE_RETRAIN_STATUSES.has(String(job.status || '').toLowerCase()))) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      refresh();
+    }, 5000);
+
+    return () => window.clearInterval(intervalId);
+  }, [jobs]);
 
   const handleStartRetrain = async () => {
     try {
@@ -91,13 +105,41 @@ const ModelOpsPage = () => {
   };
 
   const formatDuration = (start, end) => {
-    if (!start || !end) return 'N/A';
-    const ms = Math.max(0, new Date(end).getTime() - new Date(start).getTime());
+    if (!start) return 'N/A';
+    const endTime = end ? new Date(end).getTime() : Date.now();
+    const ms = Math.max(0, endTime - new Date(start).getTime());
     const sec = Math.floor(ms / 1000);
     if (sec < 60) return `${sec}s`;
     const min = Math.floor(sec / 60);
     const rem = sec % 60;
     return `${min}m ${rem}s`;
+  };
+
+  const renderStatusBadge = (status) => {
+    const normalized = String(status || 'unknown').toLowerCase();
+    return (
+      <span className={`status-badge status-badge-${normalized}`}>
+        {normalized}
+      </span>
+    );
+  };
+
+  const renderJobDetails = (job) => {
+    const status = String(job.status || '').toLowerCase();
+    if (status === 'failed') {
+      return job.error || 'Training failed without an error message.';
+    }
+    if (status === 'succeeded') {
+      if (job.result?.version) return `Model version ${job.result.version} is ready.`;
+      return 'Training completed successfully.';
+    }
+    if (status === 'running') {
+      return 'Training is in progress. This table refreshes automatically.';
+    }
+    if (status === 'queued') {
+      return 'Waiting for the backend worker to start training.';
+    }
+    return 'No details available.';
   };
 
   return (
@@ -122,6 +164,9 @@ const ModelOpsPage = () => {
                 <button className="details-btn" onClick={refresh} style={{ marginLeft: '8px' }}>Refresh</button>
               </div>
               {loading && <p className="muted">Loading model ops data...</p>}
+              {jobs.some((job) => ACTIVE_RETRAIN_STATUSES.has(String(job.status || '').toLowerCase())) && (
+                <p className="muted settings-helper">Active retrain detected. Auto-refresh runs every 5 seconds.</p>
+              )}
               {message && <p className="form-info">{message}</p>}
               {error && <p className="form-error">{error}</p>}
             </div>
@@ -145,19 +190,21 @@ const ModelOpsPage = () => {
                         <th>IF Benign Anomaly</th>
                         <th>Samples</th>
                         <th>Created</th>
+                        <th>Details</th>
                       </tr>
                     </thead>
                     <tbody>
                       {jobs.map((job) => (
                         <tr key={job.id}>
                           <td className="alert-id">{job.id}</td>
-                          <td>{job.status}</td>
+                          <td>{renderStatusBadge(job.status)}</td>
                           <td>{job.reason}</td>
                           <td>{formatDuration(job.started_at, job.finished_at)}</td>
                           <td>{formatPct(job.metrics?.rf_train_accuracy)}</td>
                           <td>{formatPct(job.metrics?.iforest_benign_anomaly_rate)}</td>
                           <td>{typeof job.metrics?.samples === 'number' ? job.metrics.samples : 'N/A'}</td>
                           <td>{job.created_at ? new Date(job.created_at).toLocaleString() : 'N/A'}</td>
+                          <td className="job-details-cell">{renderJobDetails(job)}</td>
                         </tr>
                       ))}
                     </tbody>

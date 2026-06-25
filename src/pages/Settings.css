@@ -54,6 +54,14 @@
   white-space: nowrap;
 }
 
+.alerts-table .job-details-cell {
+  min-width: 280px;
+  max-width: 420px;
+  white-space: normal;
+  line-height: 1.4;
+  color: #c4d5f2;
+}
+
 .alert-id {
   display: inline-block;
   max-width: min(45vw, 360px);
@@ -271,6 +279,50 @@
 .details-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 86px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: capitalize;
+}
+
+.status-badge-queued {
+  background: rgba(255, 187, 51, 0.14);
+  border-color: rgba(255, 187, 51, 0.45);
+  color: #ffcf66;
+}
+
+.status-badge-running {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: rgba(0, 229, 255, 0.45);
+  color: #72efff;
+}
+
+.status-badge-succeeded {
+  background: rgba(46, 204, 113, 0.14);
+  border-color: rgba(46, 204, 113, 0.45);
+  color: #75f0a3;
+}
+
+.status-badge-failed {
+  background: rgba(255, 68, 68, 0.14);
+  border-color: rgba(255, 68, 68, 0.45);
+  color: #ff7b7b;
+}
+
+.status-badge-unknown {
+  background: rgba(139, 157, 195, 0.12);
+  border-color: rgba(139, 157, 195, 0.35);
+  color: #b8c6e5;
 }
 
 .toast {
