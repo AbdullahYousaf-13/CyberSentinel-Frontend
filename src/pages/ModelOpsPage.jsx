@@ -210,7 +210,7 @@ const ModelOpsPage = () => {
             <div className="setting-card-content">
               <h2>Model Versions</h2>
               {versions.length === 0 ? (
-                <p className="muted">No model versions available.</p>
+                <p className="muted">No persisted model versions are available yet. Rollback becomes available after at least one stored retrain version exists.</p>
               ) : (
                 <div className="table-wrapper">
                   <table className="alerts-table">

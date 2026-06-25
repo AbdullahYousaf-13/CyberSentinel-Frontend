@@ -69,4 +69,14 @@ describe('ModelOpsPage', () => {
       expect(createRetrainJob).toHaveBeenCalledWith({ reason: 'Manual retraining' })
     );
   });
+
+  test('shows persisted-version empty state when no versions exist', async () => {
+    listRetrainJobs.mockResolvedValue([]);
+
+    renderPage();
+
+    expect(
+      await screen.findByText(/no persisted model versions are available yet/i)
+    ).toBeInTheDocument();
+  });
 });
