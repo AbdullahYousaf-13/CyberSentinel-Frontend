@@ -13,8 +13,6 @@ import {
 import './Page.css';
 import './Settings.css';
 
-const ACTIVE_RETRAIN_STATUSES = new Set(['queued', 'running']);
-
 const ModelOpsPage = () => {
   const [reason, setReason] = useState('');
   const [jobs, setJobs] = useState([]);
@@ -46,18 +44,6 @@ const ModelOpsPage = () => {
   useEffect(() => {
     refresh();
   }, []);
-
-  useEffect(() => {
-    if (!jobs.some((job) => ACTIVE_RETRAIN_STATUSES.has(String(job.status || '').toLowerCase()))) {
-      return undefined;
-    }
-
-    const intervalId = window.setInterval(() => {
-      refresh();
-    }, 5000);
-
-    return () => window.clearInterval(intervalId);
-  }, [jobs]);
 
   const handleStartRetrain = async () => {
     try {
@@ -134,7 +120,7 @@ const ModelOpsPage = () => {
       return 'Training completed successfully.';
     }
     if (status === 'running') {
-      return 'Training is in progress. This table refreshes automatically.';
+      return 'Training is in progress.';
     }
     if (status === 'queued') {
       return 'Waiting for the backend worker to start training.';
@@ -164,9 +150,6 @@ const ModelOpsPage = () => {
                 <button className="details-btn" onClick={refresh} style={{ marginLeft: '8px' }}>Refresh</button>
               </div>
               {loading && <p className="muted">Loading model ops data...</p>}
-              {jobs.some((job) => ACTIVE_RETRAIN_STATUSES.has(String(job.status || '').toLowerCase())) && (
-                <p className="muted settings-helper">Active retrain detected. Auto-refresh runs every 5 seconds.</p>
-              )}
               {message && <p className="form-info">{message}</p>}
               {error && <p className="form-error">{error}</p>}
             </div>
