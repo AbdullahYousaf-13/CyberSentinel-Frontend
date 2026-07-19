@@ -44,31 +44,34 @@ const AlertsTable = ({
               </tr>
             </thead>
             <tbody>
-              {alerts.map((alert) => (
-                <React.Fragment key={alert.id}>
-                  <tr>
-                    <td className="alert-id col-alert-id">{alert.incidentId}</td>
-                    <td className="col-alert-type">{alert.alertType}</td>
-                    <td className="col-classification">{alert.classification}</td>
-                    <td className="col-classification">{alert.sourceIp}</td>
-                    <td className="col-classification">{alert.destinationIp}</td>
-                    {showSeverity && (
-                      <td className="col-severity">
-                        <span className={`severity-badge ${severityClassByValue[alert.severity] || 'badge-low'}`}>
-                          {String(alert.severity || 'low').toUpperCase()}
-                        </span>
+              {alerts.map((alert) => {
+                const severity = String(alert.severity || 'low').toLowerCase();
+                return (
+                  <React.Fragment key={alert.id}>
+                    <tr>
+                      <td className="alert-id col-alert-id">{alert.incidentId}</td>
+                      <td className="col-alert-type">{alert.alertType}</td>
+                      <td className="col-classification">{alert.classification}</td>
+                      <td className="col-classification">{alert.sourceIp}</td>
+                      <td className="col-classification">{alert.destinationIp}</td>
+                      {showSeverity && (
+                        <td className="col-severity">
+                          <span className={`severity-badge ${severityClassByValue[severity] || 'badge-low'}`}>
+                            {severity.toUpperCase()}
+                          </span>
+                        </td>
+                      )}
+                      <td className="col-ai-score">{alert.aiScore}</td>
+                      <td className="col-model-version">{alert.modelVersion}</td>
+                      <td className="col-action">
+                        <button className="details-btn" onClick={() => handleDetailsClick(alert)}>
+                          Details
+                        </button>
                       </td>
-                    )}
-                    <td className="col-ai-score">{alert.aiScore}</td>
-                    <td className="col-model-version">{alert.modelVersion}</td>
-                    <td className="col-action">
-                      <button className="details-btn" onClick={() => handleDetailsClick(alert)}>
-                        Details
-                      </button>
-                    </td>
-                  </tr>
-                </React.Fragment>
-              ))}
+                    </tr>
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>

@@ -133,6 +133,50 @@ test('mapAlertToDisplay keeps classification as N/A when model label is missing'
   expect(anomalyRow.destinationIp).toBe('N/A');
 });
 
+test('mapAlertToDisplay uses parent alert severity instead of averaging child severities', () => {
+  const highIncident = mapAlertToDisplay(
+    {
+      id: 'alert-high',
+      incident_id: 'alert-high',
+      created_at: '2026-04-20T13:00:00Z',
+      opened_at: '2026-04-20T13:00:00Z',
+      last_seen_at: '2026-04-20T13:10:00Z',
+      event_count: 3,
+      alert_type: 'known_attack',
+      classification: 'SSH_BRUTE',
+      severity: 'high',
+      children: [
+        { log_id: 'log-1', severity: 'high', anomaly_score: 0.91, metadata: {} },
+        { log_id: 'log-2', severity: 'low', anomaly_score: 0.66, metadata: {} },
+        { log_id: 'log-3', severity: 'low', anomaly_score: 0.64, metadata: {} }
+      ]
+    },
+    null
+  );
+  const mediumIncident = mapAlertToDisplay(
+    {
+      id: 'alert-medium',
+      incident_id: 'alert-medium',
+      created_at: '2026-04-20T14:00:00Z',
+      opened_at: '2026-04-20T14:00:00Z',
+      last_seen_at: '2026-04-20T14:05:00Z',
+      event_count: 2,
+      alert_type: 'anomaly',
+      classification: null,
+      severity: 'medium',
+      children: [
+        { log_id: 'log-4', severity: 'medium', anomaly_score: 0.73, metadata: {} },
+        { log_id: 'log-5', severity: 'low', anomaly_score: 0.66, metadata: {} }
+      ]
+    },
+    null
+  );
+
+  expect(highIncident.severity).toBe('high');
+  expect(mediumIncident.severity).toBe('medium');
+  expect(highIncident.children[1].severity).toBe('low');
+});
+
 test('mapAlertToDisplay falls back to legacy root anomaly_score and model_version', () => {
   const row = mapAlertToDisplay(
     {

@@ -32,6 +32,23 @@ const normalizeAlertType = (value) => {
   return 'anomaly';
 };
 
+const severityRank = { low: 1, medium: 2, high: 3, critical: 4 };
+const normalizeSeverity = (value) => {
+  const raw = String(value || '').trim().toLowerCase();
+  return severityRank[raw] ? raw : 'low';
+};
+
+const highestChildSeverity = (children) => {
+  let highest = 'low';
+  children.forEach((item) => {
+    const childSeverity = normalizeSeverity(item?.severity);
+    if (severityRank[childSeverity] > severityRank[highest]) {
+      highest = childSeverity;
+    }
+  });
+  return highest;
+};
+
 export const formatAiScore = (score) => {
   if (typeof score !== 'number' || Number.isNaN(score)) return 'N/A';
   return score.toFixed(4);
@@ -72,18 +89,9 @@ export const mapAlertToDisplay = (alert, linkedLog) => {
     message: summary?.message || linkedLog?.message_normalized || linkedLog?.message || 'N/A'
   };
 
-  const severityRank = { low: 1, medium: 2, high: 3, critical: 4 };
-  const rankSeverity = ['low', 'low', 'medium', 'high', 'critical'];
-  const childSeverityRanks = children
-    .map((item) => {
-      const childSeverity = severityRank[String(item?.severity || '').toLowerCase()];
-      if (childSeverity) return childSeverity;
-      return severityRank[String(alert?.severity || '').toLowerCase()] || 1;
-    });
-  const averageSeverityRank = childSeverityRanks.length
-    ? (childSeverityRanks.reduce((sum, value) => sum + value, 0) / childSeverityRanks.length)
-    : (severityRank[String(alert?.severity || '').toLowerCase()] || 1);
-  const roundedAverageSeverityRank = Math.max(1, Math.min(4, Math.round(averageSeverityRank)));
+  const alertSeverity = alert?.severity
+    ? normalizeSeverity(alert.severity)
+    : highestChildSeverity(children);
 
   const resolvedSource = toDisplay(
     alert.source_ip,
@@ -113,7 +121,7 @@ export const mapAlertToDisplay = (alert, linkedLog) => {
     classification: toDisplay(alert.classification),
     aiScore: formatAiScore(latestAiScore),
     modelVersion: toDisplay(latestModelVersion),
-    severity: rankSeverity[roundedAverageSeverityRank] || 'low',
+    severity: alertSeverity,
     children: children.map((item) => ({
       logId: toDisplay(item?.log_id),
       eventTime: item?.event_time ? new Date(item.event_time).toLocaleString() : 'N/A',
