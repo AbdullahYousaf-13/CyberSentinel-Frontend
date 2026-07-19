@@ -92,6 +92,11 @@ const ModelOpsPage = () => {
     return `${(value * 100).toFixed(3)}%`;
   };
 
+  const formatCount = (value) => {
+    if (typeof value !== 'number' || Number.isNaN(value)) return 'N/A';
+    return value;
+  };
+
   const formatDuration = (start, end) => {
     if (!start) return 'N/A';
     const endTime = end ? new Date(end).getTime() : Date.now();
@@ -178,8 +183,12 @@ const ModelOpsPage = () => {
                         <th>Status</th>
                         <th>Reason</th>
                         <th>Duration</th>
-                        <th>RF Train Acc</th>
-                        <th>IF Benign Anomaly</th>
+                        <th>RF Macro Recall</th>
+                        <th>RF Macro F1</th>
+                        <th>IF Binary Recall</th>
+                        <th>IF Binary F1</th>
+                        <th>IF Gate Recall</th>
+                        <th>IF Gate F1</th>
                         <th>Samples</th>
                         <th>Created</th>
                         <th>Details</th>
@@ -192,9 +201,13 @@ const ModelOpsPage = () => {
                           <td>{renderStatusBadge(job.status)}</td>
                           <td>{job.reason}</td>
                           <td>{formatDuration(job.started_at, job.finished_at)}</td>
-                          <td>{formatPct(job.metrics?.rf_train_accuracy)}</td>
-                          <td>{formatPct(job.metrics?.iforest_benign_anomaly_rate)}</td>
-                          <td>{typeof job.metrics?.samples === 'number' ? job.metrics.samples : 'N/A'}</td>
+                          <td>{formatPct(job.metrics?.rf_macro_recall)}</td>
+                          <td>{formatPct(job.metrics?.rf_macro_f1)}</td>
+                          <td>{formatPct(job.metrics?.iforest_binary_recall)}</td>
+                          <td>{formatPct(job.metrics?.iforest_binary_f1)}</td>
+                          <td>{formatPct(job.metrics?.iforest_gate_recall)}</td>
+                          <td>{formatPct(job.metrics?.iforest_gate_f1)}</td>
+                          <td>{formatCount(job.metrics?.samples)}</td>
                           <td>{job.created_at ? new Date(job.created_at).toLocaleString() : 'N/A'}</td>
                           <td className="job-details-cell">{renderJobDetails(job)}</td>
                         </tr>
@@ -219,8 +232,12 @@ const ModelOpsPage = () => {
                         <th>Version</th>
                         <th>Active</th>
                         <th>Trained At</th>
-                        <th>RF Train Acc</th>
-                        <th>IF Benign Anomaly</th>
+                        <th>RF Macro Recall</th>
+                        <th>RF Macro F1</th>
+                        <th>IF Binary Recall</th>
+                        <th>IF Binary F1</th>
+                        <th>IF Gate Recall</th>
+                        <th>IF Gate F1</th>
                         <th>Samples</th>
                         <th>Action</th>
                       </tr>
@@ -231,9 +248,13 @@ const ModelOpsPage = () => {
                           <td className="alert-id">{version.version}</td>
                           <td>{version.active ? 'Yes' : 'No'}</td>
                           <td>{version.trained_at ? new Date(version.trained_at).toLocaleString() : 'N/A'}</td>
-                          <td>{formatPct(version.metrics?.rf_train_accuracy)}</td>
-                          <td>{formatPct(version.metrics?.iforest_benign_anomaly_rate)}</td>
-                          <td>{typeof version.metrics?.samples === 'number' ? version.metrics.samples : 'N/A'}</td>
+                          <td>{formatPct(version.metrics?.rf_macro_recall)}</td>
+                          <td>{formatPct(version.metrics?.rf_macro_f1)}</td>
+                          <td>{formatPct(version.metrics?.iforest_binary_recall)}</td>
+                          <td>{formatPct(version.metrics?.iforest_binary_f1)}</td>
+                          <td>{formatPct(version.metrics?.iforest_gate_recall)}</td>
+                          <td>{formatPct(version.metrics?.iforest_gate_f1)}</td>
+                          <td>{formatCount(version.metrics?.samples)}</td>
                           <td>
                             {!version.active && (
                               <button className="details-btn" onClick={() => handleRollback(version.version)}>
