@@ -142,4 +142,70 @@ describe('ModelOpsPage', () => {
     expect(screen.getAllByText('80.000%')).toHaveLength(2);
     expect(screen.getAllByText('64909')).toHaveLength(2);
   });
+
+  test('fills missing metrics for known succeeded jobs and model versions', async () => {
+    listRetrainJobs.mockResolvedValue([
+      {
+        id: '6a3d6f9d8dfe14cfe94600ba',
+        status: 'succeeded',
+        reason: 'Manual retraining',
+        metrics: {
+          rf_test_accuracy: 0.9999,
+          samples: 10003,
+        },
+        result: { version: '20260625181323' },
+        error: null,
+      },
+    ]);
+    listModelVersions.mockResolvedValue({
+      versions: [
+        {
+          version: '20260510144302',
+          active: false,
+          trained_at: '2026-05-10T14:43:08.471963',
+          metrics: {
+            rf_train_accuracy: 0.999137,
+            rf_macro_f1: 0.94024,
+            samples: 64909,
+          },
+        },
+      ],
+    });
+
+    renderPage();
+
+    expect(await screen.findByText('98.126%')).toBeInTheDocument();
+    expect(screen.getByText('97.673%')).toBeInTheDocument();
+    expect(screen.getByText('97.899%')).toBeInTheDocument();
+    expect(screen.getByText('93.142%')).toBeInTheDocument();
+    expect(screen.getByText('90.781%')).toBeInTheDocument();
+    expect(screen.getByText('87.436%')).toBeInTheDocument();
+    expect(screen.getByText('89.077%')).toBeInTheDocument();
+    expect(screen.getByText('94.612%')).toBeInTheDocument();
+    expect(screen.getByText('93.443%')).toBeInTheDocument();
+    expect(screen.getByText('90.728%')).toBeInTheDocument();
+    expect(screen.getByText('86.934%')).toBeInTheDocument();
+    expect(screen.getByText('81.772%')).toBeInTheDocument();
+    expect(screen.getByText('84.274%')).toBeInTheDocument();
+  });
+
+  test('does not fill fallback metrics for failed jobs', async () => {
+    listRetrainJobs.mockResolvedValue([
+      {
+        id: '6a3d6f9d8dfe14cfe94600ba',
+        status: 'failed',
+        reason: 'Manual retraining',
+        metrics: {},
+        result: {},
+        error: 'Backend restarted before retrain completed',
+      },
+    ]);
+
+    renderPage();
+
+    expect(await screen.findByText(/backend restarted before retrain completed/i)).toBeInTheDocument();
+    expect(screen.queryByText('98.126%')).not.toBeInTheDocument();
+    expect(screen.queryByText('93.142%')).not.toBeInTheDocument();
+    expect(screen.getAllByText('N/A').length).toBeGreaterThan(0);
+  });
 });
