@@ -14,6 +14,24 @@ import './Page.css';
 import './Settings.css';
 
 const ACTIVE_RETRAIN_STATUSES = new Set(['queued', 'running']);
+const MODEL_METRIC_KEYS = {
+  accuracy: {
+    rf: ['rf_test_accuracy', 'rf_train_accuracy'],
+    iforest: ['iforest_binary_accuracy', 'iforest_gate_accuracy'],
+  },
+  precision: {
+    rf: ['rf_macro_precision', 'rf_weighted_precision'],
+    iforest: ['iforest_binary_precision', 'iforest_gate_precision'],
+  },
+  recall: {
+    rf: ['rf_macro_recall', 'rf_weighted_recall'],
+    iforest: ['iforest_binary_recall', 'iforest_gate_recall'],
+  },
+  f1: {
+    rf: ['rf_macro_f1', 'rf_weighted_f1'],
+    iforest: ['iforest_binary_f1', 'iforest_gate_f1'],
+  },
+};
 
 const ModelOpsPage = () => {
   const [reason, setReason] = useState('');
@@ -97,15 +115,28 @@ const ModelOpsPage = () => {
     return value;
   };
 
-  const formatDuration = (start, end) => {
-    if (!start) return 'N/A';
-    const endTime = end ? new Date(end).getTime() : Date.now();
-    const ms = Math.max(0, endTime - new Date(start).getTime());
-    const sec = Math.floor(ms / 1000);
-    if (sec < 60) return `${sec}s`;
-    const min = Math.floor(sec / 60);
-    const rem = sec % 60;
-    return `${min}m ${rem}s`;
+  const firstMetric = (metrics, keys) => {
+    for (const key of keys) {
+      const value = metrics?.[key];
+      if (typeof value === 'number' && !Number.isNaN(value)) return value;
+    }
+    return undefined;
+  };
+
+  const renderModelMetric = (metrics, name) => {
+    const keys = MODEL_METRIC_KEYS[name];
+    return (
+      <div className="model-metrics-cell">
+        <div className="model-metric-line">
+          <span className="model-metric-label">RF</span>
+          <span>{formatPct(firstMetric(metrics, keys.rf))}</span>
+        </div>
+        <div className="model-metric-line">
+          <span className="model-metric-label">IF</span>
+          <span>{formatPct(firstMetric(metrics, keys.iforest))}</span>
+        </div>
+      </div>
+    );
   };
 
   const renderStatusBadge = (status) => {
@@ -182,13 +213,10 @@ const ModelOpsPage = () => {
                         <th>Job ID</th>
                         <th>Status</th>
                         <th>Reason</th>
-                        <th>Duration</th>
-                        <th>RF Macro Recall</th>
-                        <th>RF Macro F1</th>
-                        <th>IF Binary Recall</th>
-                        <th>IF Binary F1</th>
-                        <th>IF Gate Recall</th>
-                        <th>IF Gate F1</th>
+                        <th>Accuracy</th>
+                        <th>Precision</th>
+                        <th>Recall</th>
+                        <th>F1 Score</th>
                         <th>Samples</th>
                         <th>Created</th>
                         <th>Details</th>
@@ -200,13 +228,10 @@ const ModelOpsPage = () => {
                           <td className="alert-id">{job.id}</td>
                           <td>{renderStatusBadge(job.status)}</td>
                           <td>{job.reason}</td>
-                          <td>{formatDuration(job.started_at, job.finished_at)}</td>
-                          <td>{formatPct(job.metrics?.rf_macro_recall)}</td>
-                          <td>{formatPct(job.metrics?.rf_macro_f1)}</td>
-                          <td>{formatPct(job.metrics?.iforest_binary_recall)}</td>
-                          <td>{formatPct(job.metrics?.iforest_binary_f1)}</td>
-                          <td>{formatPct(job.metrics?.iforest_gate_recall)}</td>
-                          <td>{formatPct(job.metrics?.iforest_gate_f1)}</td>
+                          <td>{renderModelMetric(job.metrics, 'accuracy')}</td>
+                          <td>{renderModelMetric(job.metrics, 'precision')}</td>
+                          <td>{renderModelMetric(job.metrics, 'recall')}</td>
+                          <td>{renderModelMetric(job.metrics, 'f1')}</td>
                           <td>{formatCount(job.metrics?.samples)}</td>
                           <td>{job.created_at ? new Date(job.created_at).toLocaleString() : 'N/A'}</td>
                           <td className="job-details-cell">{renderJobDetails(job)}</td>
@@ -232,12 +257,10 @@ const ModelOpsPage = () => {
                         <th>Version</th>
                         <th>Active</th>
                         <th>Trained At</th>
-                        <th>RF Macro Recall</th>
-                        <th>RF Macro F1</th>
-                        <th>IF Binary Recall</th>
-                        <th>IF Binary F1</th>
-                        <th>IF Gate Recall</th>
-                        <th>IF Gate F1</th>
+                        <th>Accuracy</th>
+                        <th>Precision</th>
+                        <th>Recall</th>
+                        <th>F1 Score</th>
                         <th>Samples</th>
                         <th>Action</th>
                       </tr>
@@ -248,12 +271,10 @@ const ModelOpsPage = () => {
                           <td className="alert-id">{version.version}</td>
                           <td>{version.active ? 'Yes' : 'No'}</td>
                           <td>{version.trained_at ? new Date(version.trained_at).toLocaleString() : 'N/A'}</td>
-                          <td>{formatPct(version.metrics?.rf_macro_recall)}</td>
-                          <td>{formatPct(version.metrics?.rf_macro_f1)}</td>
-                          <td>{formatPct(version.metrics?.iforest_binary_recall)}</td>
-                          <td>{formatPct(version.metrics?.iforest_binary_f1)}</td>
-                          <td>{formatPct(version.metrics?.iforest_gate_recall)}</td>
-                          <td>{formatPct(version.metrics?.iforest_gate_f1)}</td>
+                          <td>{renderModelMetric(version.metrics, 'accuracy')}</td>
+                          <td>{renderModelMetric(version.metrics, 'precision')}</td>
+                          <td>{renderModelMetric(version.metrics, 'recall')}</td>
+                          <td>{renderModelMetric(version.metrics, 'f1')}</td>
                           <td>{formatCount(version.metrics?.samples)}</td>
                           <td>
                             {!version.active && (
