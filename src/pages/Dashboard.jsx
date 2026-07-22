@@ -1,6 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
 import AlertCards from '../components/dashboard/AlertCards';
 import AlertsTable from '../components/dashboard/AlertsTable';
 import AttackChart from '../components/dashboard/AttackChart';
@@ -167,99 +165,95 @@ const Dashboard = () => {
   }, [page, totalPages]);
 
   return (
-    <div className="dashboard-layout dashboard-page-layout">
-      <Header />
-      <Sidebar />
-      <main className="main-content dashboard-main-content">
-        {alertsError && <div className="dashboard-warning">{alertsError}</div>}
-        {analyticsError && <div className="dashboard-warning">{analyticsError}</div>}
-        {actionMessage && <div className="dashboard-warning">{actionMessage}</div>}
-        <AlertCards
-          stats={alertStats}
-          activeFilter={activeSeverity}
-          onSelect={(key) => {
-            setPage(1);
-            setActiveSeverity(key);
-          }}
+    <main className="main-content dashboard-main-content">
+      {alertsError && <div className="dashboard-warning">{alertsError}</div>}
+      {analyticsError && <div className="dashboard-warning">{analyticsError}</div>}
+      {actionMessage && <div className="dashboard-warning">{actionMessage}</div>}
+      <AlertCards
+        stats={alertStats}
+        activeFilter={activeSeverity}
+        onSelect={(key) => {
+          setPage(1);
+          setActiveSeverity(key);
+        }}
+      />
+      <div className="dashboard-filter-bar" role="group" aria-label="Alert type filters">
+        {DASHBOARD_ALERT_TYPE_FILTERS.map((filter) => (
+          <button
+            key={filter.key}
+            type="button"
+            className={`dashboard-filter-chip ${activeAlertType === filter.key ? 'active' : ''}`}
+            onClick={() => {
+              setPage(1);
+              setActiveAlertType(filter.key);
+            }}
+          >
+            {filter.label}
+          </button>
+        ))}
+      </div>
+      {isAlertsLoading ? (
+        <div className="dashboard-warning">Loading alerts...</div>
+      ) : (
+        <AlertsTable
+          alerts={displayAlerts}
+          showSeverity
+          onConfirmKnown={handleConfirmKnown}
+          onMarkFalsePositive={handleMarkFalsePositive}
         />
-        <div className="dashboard-filter-bar" role="group" aria-label="Alert type filters">
-          {DASHBOARD_ALERT_TYPE_FILTERS.map((filter) => (
-            <button
-              key={filter.key}
-              type="button"
-              className={`dashboard-filter-chip ${activeAlertType === filter.key ? 'active' : ''}`}
-              onClick={() => {
-                setPage(1);
-                setActiveAlertType(filter.key);
-              }}
-            >
-              {filter.label}
-            </button>
-          ))}
-        </div>
-        {isAlertsLoading ? (
-          <div className="dashboard-warning">Loading alerts...</div>
-        ) : (
-          <AlertsTable
-            alerts={displayAlerts}
-            showSeverity
-            onConfirmKnown={handleConfirmKnown}
-            onMarkFalsePositive={handleMarkFalsePositive}
+      )}
+      <div className="dashboard-controls">
+        <button className="dashboard-btn" onClick={loadAlerts}>
+          Refresh
+        </button>
+        <button className="dashboard-btn" onClick={loadAnalytics}>
+          Refresh Analytics
+        </button>
+        <button
+          className="dashboard-btn"
+          onClick={() => setPage((previousPage) => Math.max(1, previousPage - 1))}
+          disabled={page === 1}
+        >
+          Previous Page
+        </button>
+        <span className="dashboard-page-info">
+          Page {page} of {totalPages}
+        </span>
+        <button
+          className="dashboard-btn"
+          onClick={() => setPage((previousPage) => Math.min(totalPages, previousPage + 1))}
+          disabled={page >= totalPages}
+        >
+          Next Page
+        </button>
+        <div className="dashboard-page-jump">
+          <label className="dashboard-page-jump-label" htmlFor="dashboard-page-input">Go to</label>
+          <input
+            id="dashboard-page-input"
+            className="dashboard-page-jump-input"
+            type="number"
+            min="1"
+            max={totalPages}
+            inputMode="numeric"
+            value={pageInput}
+            onChange={(e) => setPageInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handlePageInputSubmit();
+              }
+            }}
           />
-        )}
-        <div className="dashboard-controls">
-          <button className="dashboard-btn" onClick={loadAlerts}>
-            Refresh
+          <button className="dashboard-btn" onClick={handlePageInputSubmit}>
+            Go
           </button>
-          <button className="dashboard-btn" onClick={loadAnalytics}>
-            Refresh Analytics
-          </button>
-          <button
-            className="dashboard-btn"
-            onClick={() => setPage((previousPage) => Math.max(1, previousPage - 1))}
-            disabled={page === 1}
-          >
-            Previous Page
-          </button>
-          <span className="dashboard-page-info">
-            Page {page} of {totalPages}
-          </span>
-          <button
-            className="dashboard-btn"
-            onClick={() => setPage((previousPage) => Math.min(totalPages, previousPage + 1))}
-            disabled={page >= totalPages}
-          >
-            Next Page
-          </button>
-          <div className="dashboard-page-jump">
-            <label className="dashboard-page-jump-label" htmlFor="dashboard-page-input">Go to</label>
-            <input
-              id="dashboard-page-input"
-              className="dashboard-page-jump-input"
-              type="number"
-              min="1"
-              max={totalPages}
-              inputMode="numeric"
-              value={pageInput}
-              onChange={(e) => setPageInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handlePageInputSubmit();
-                }
-              }}
-            />
-            <button className="dashboard-btn" onClick={handlePageInputSubmit}>
-              Go
-            </button>
-          </div>
         </div>
-        <div className="charts-container">
-          {isAnalyticsLoading && <div className="dashboard-warning">Loading analytics...</div>}
-          <AttackChart data={attackTrendsData} />
-          <ThreatPie data={attackTypeDistribution} />
-        </div>
-      </main>
-    </div>
+      </div>
+      <div className="charts-container">
+        {isAnalyticsLoading && <div className="dashboard-warning">Loading analytics...</div>}
+        <AttackChart data={attackTrendsData} />
+        <ThreatPie data={attackTypeDistribution} />
+      </div>
+    </main>
   );
 };
 

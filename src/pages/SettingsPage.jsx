@@ -1,6 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
 import {
   disableTotp,
   fetchMe,
@@ -214,11 +212,8 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="dashboard-layout">
-      <Header />
-      <Sidebar />
-      <main className="main-content">
-        <div className="settings-grid">
+    <main className="main-content">
+      <div className="settings-grid">
           <section className="setting-card">
             <div className="setting-card-content">
               <h2>2FA Authentication</h2>
@@ -383,9 +378,8 @@ const SettingsPage = () => {
           <div className="settings-actions">
             <button className="details-btn" onClick={handleSave}>Save Settings</button>
           </div>
-        </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 };
 

@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faDownload } from '@fortawesome/free-solid-svg-icons';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
+import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
+import { faDownload } from '@fortawesome/free-solid-svg-icons/faDownload';
 import AlertsTable from '../components/dashboard/AlertsTable';
 import { confirmKnownAttack, fetchAlerts, fetchMe, markFalsePositive } from '../services/api';
 import { mapAlertToDisplay } from '../utils/securityViewMappers';
@@ -136,98 +135,94 @@ const AlertsPage = () => {
   };
 
   return (
-    <div className="dashboard-layout">
-      <Header />
-      <Sidebar />
-      <main className="main-content alerts-main">
-        <div className="alerts-header">
-          <h1>Alerts</h1>
-          {!token && (
-            <div className="alerts-warning">
-              Please log in to load alerts.
-            </div>
-          )}
-          {error && <div className="alerts-warning">{error}</div>}
-          {actionMessage && <div className="alerts-warning">{actionMessage}</div>}
-          <div className="alerts-search-container">
-            <FontAwesomeIcon icon={faSearch} className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search by incident ID, type, source/destination IP, classification, severity, score, or model"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="alerts-search-input"
-            />
+    <main className="main-content alerts-main">
+      <div className="alerts-header">
+        <h1>Alerts</h1>
+        {!token && (
+          <div className="alerts-warning">
+            Please log in to load alerts.
           </div>
-          <div className="alerts-filters">
-            <select
-              className="alerts-filter-select"
-              value={severityFilter}
-              onChange={(e) => {
-                setOffset(0);
-                setSeverityFilter(e.target.value);
-              }}
-            >
-              <option value="">All Severities</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
-            <select
-              className="alerts-filter-select"
-              value={typeFilter}
-              onChange={(e) => {
-                setOffset(0);
-                setTypeFilter(e.target.value);
-              }}
-            >
-              <option value="">All Types</option>
-              <option value="known_attack">Known Attack</option>
-              <option value="anomaly">Anomaly</option>
-            </select>
-            <button className="logs-action-btn" onClick={handleRefresh}>
-              Refresh
-            </button>
-          </div>
-          <div className="alerts-action-buttons">
-            <button className="action-btn" onClick={handleDownloadCSV}>
-              <FontAwesomeIcon icon={faDownload} />
-              Download CSV
-            </button>
-          </div>
-        </div>
-        {isLoading ? (
-          <div className="alerts-warning">Loading alerts...</div>
-        ) : (
-          <AlertsTable
-            alerts={filtered}
-            showSeverity
-            isAdmin={isAdmin}
-            onConfirmKnown={handleConfirmKnown}
-            onMarkFalsePositive={handleMarkFalsePositive}
-          />
         )}
-        <div className="alerts-pagination">
-          <button
-            className="action-btn"
-            onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
-            disabled={offset === 0}
+        {error && <div className="alerts-warning">{error}</div>}
+        {actionMessage && <div className="alerts-warning">{actionMessage}</div>}
+        <div className="alerts-search-container">
+          <FontAwesomeIcon icon={faSearch} className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search by incident ID, type, source/destination IP, classification, severity, score, or model"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="alerts-search-input"
+          />
+        </div>
+        <div className="alerts-filters">
+          <select
+            className="alerts-filter-select"
+            value={severityFilter}
+            onChange={(e) => {
+              setOffset(0);
+              setSeverityFilter(e.target.value);
+            }}
           >
-            Previous Page
-          </button>
-          <span className="pagination-info">
-            Page {Math.floor(offset / PAGE_SIZE) + 1}
-          </span>
-          <button
-            className="action-btn"
-            onClick={() => setOffset(offset + PAGE_SIZE)}
-            disabled={alerts.length < PAGE_SIZE}
+            <option value="">All Severities</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+          <select
+            className="alerts-filter-select"
+            value={typeFilter}
+            onChange={(e) => {
+              setOffset(0);
+              setTypeFilter(e.target.value);
+            }}
           >
-            Next Page
+            <option value="">All Types</option>
+            <option value="known_attack">Known Attack</option>
+            <option value="anomaly">Anomaly</option>
+          </select>
+          <button className="logs-action-btn" onClick={handleRefresh}>
+            Refresh
           </button>
         </div>
-      </main>
-    </div>
+        <div className="alerts-action-buttons">
+          <button className="action-btn" onClick={handleDownloadCSV}>
+            <FontAwesomeIcon icon={faDownload} />
+            Download CSV
+          </button>
+        </div>
+      </div>
+      {isLoading ? (
+        <div className="alerts-warning">Loading alerts...</div>
+      ) : (
+        <AlertsTable
+          alerts={filtered}
+          showSeverity
+          isAdmin={isAdmin}
+          onConfirmKnown={handleConfirmKnown}
+          onMarkFalsePositive={handleMarkFalsePositive}
+        />
+      )}
+      <div className="alerts-pagination">
+        <button
+          className="action-btn"
+          onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
+          disabled={offset === 0}
+        >
+          Previous Page
+        </button>
+        <span className="pagination-info">
+          Page {Math.floor(offset / PAGE_SIZE) + 1}
+        </span>
+        <button
+          className="action-btn"
+          onClick={() => setOffset(offset + PAGE_SIZE)}
+          disabled={alerts.length < PAGE_SIZE}
+        >
+          Next Page
+        </button>
+      </div>
+    </main>
   );
 };
 

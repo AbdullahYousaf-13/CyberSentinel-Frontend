@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
 import {
   activateSuppression,
   createRetrainJob,
@@ -227,11 +225,8 @@ const ModelOpsPage = () => {
   const hasActiveRetrain = jobs.some((job) => ACTIVE_RETRAIN_STATUSES.has(String(job.status || '').toLowerCase()));
 
   return (
-    <div className="dashboard-layout">
-      <Header />
-      <Sidebar />
-      <main className="main-content">
-        <div className="settings-grid">
+    <main className="main-content">
+      <div className="settings-grid">
           <section className="setting-card">
             <div className="setting-card-content">
               <h2>Model Retraining</h2>
@@ -398,9 +393,8 @@ const ModelOpsPage = () => {
               )}
             </div>
           </section>
-        </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 };
 

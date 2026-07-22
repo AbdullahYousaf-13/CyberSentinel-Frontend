@@ -3,3 +3,14 @@
   min-height: 100dvh;
   background-color: #0A0F1F;
 }
+
+.route-loading {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background-color: #0A0F1F;
+  color: #00E5FF;
+  font-size: 14px;
+  font-weight: 600;
+}

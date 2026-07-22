@@ -1,6 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShieldAlt, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faShieldAlt } from '@fortawesome/free-solid-svg-icons/faShieldAlt';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExclamationTriangle';
 import './AlertCards.css';
 
 const AlertCards = ({ stats, activeFilter, onSelect }) => {

@@ -1,13 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faHome,
-  faListUl,
-  faShieldAlt,
-  faCog,
-  faBrain
-} from '@fortawesome/free-solid-svg-icons';
+import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
+import { faListUl } from '@fortawesome/free-solid-svg-icons/faListUl';
+import { faShieldAlt } from '@fortawesome/free-solid-svg-icons/faShieldAlt';
+import { faCog } from '@fortawesome/free-solid-svg-icons/faCog';
+import { faBrain } from '@fortawesome/free-solid-svg-icons/faBrain';
 import './Sidebar.css';
 
 const Sidebar = () => {

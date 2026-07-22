@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBell } from '@fortawesome/free-solid-svg-icons/faBell';
+import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons/faSignOutAlt';
 import { fetchAlerts, fetchMe } from '../../services/api';
 import './Header.css';
 
@@ -12,6 +14,9 @@ const DEFAULT_NOTIFICATION_PREFS = {
   cursor_at: null,
   last_digest_sent_at: null
 };
+
+const NOTIFICATION_ALERT_LIMIT = 20;
+const NOTIFICATION_REFRESH_MS = 60000;
 
 const formatTimeAgo = (timestamp) => {
   if (!timestamp) return 'Just now';
@@ -118,21 +123,16 @@ const Header = () => {
     }
 
     let mounted = true;
+    let activePrefs = DEFAULT_NOTIFICATION_PREFS;
 
-    const loadNotifications = async () => {
+    const loadAlertNotifications = async (prefs) => {
       try {
-        const me = await fetchMe();
-        const prefs = normalizePrefs(me?.notification_prefs);
-        if (!mounted) return;
-        setNotificationPrefs(prefs);
-        setNotificationsError('');
-
         if (!prefs.email_enabled) {
           setNotifications([]);
           return;
         }
 
-        const alerts = await fetchAlerts({ limit: 80, offset: 0 });
+        const alerts = await fetchAlerts({ limit: NOTIFICATION_ALERT_LIMIT, offset: 0 });
         if (!mounted) return;
         const windowStartTs = resolveWindowStart(prefs);
         const allowedSeverities = Array.isArray(prefs.severities) && prefs.severities.length > 0
@@ -162,6 +162,7 @@ const Header = () => {
             };
           });
         setNotifications(rows);
+        setNotificationsError('');
       } catch (_err) {
         if (!mounted) return;
         setNotifications([]);
@@ -169,8 +170,24 @@ const Header = () => {
       }
     };
 
-    loadNotifications();
-    const timer = window.setInterval(loadNotifications, 30000);
+    const loadNotificationPreferences = async () => {
+      try {
+        const me = await fetchMe();
+        if (!mounted) return;
+        activePrefs = normalizePrefs(me?.notification_prefs);
+        setNotificationPrefs(activePrefs);
+        await loadAlertNotifications(activePrefs);
+      } catch (_err) {
+        if (!mounted) return;
+        setNotifications([]);
+        setNotificationsError('Failed to load notifications');
+      }
+    };
+
+    loadNotificationPreferences();
+    const timer = window.setInterval(() => {
+      loadAlertNotifications(activePrefs);
+    }, NOTIFICATION_REFRESH_MS);
 
     return () => {
       mounted = false;

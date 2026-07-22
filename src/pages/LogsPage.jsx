@@ -1,6 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
 import { fetchLogCount, fetchLogs } from '../services/api';
 import { mapLogToDisplay } from '../utils/securityViewMappers';
 import './Page.css';
@@ -130,16 +128,13 @@ const LogsPage = () => {
   }, [page]);
 
   return (
-    <div className="dashboard-layout dashboard-page-layout">
-      <Header />
-      <Sidebar />
-      <main className="main-content dashboard-main-content logs-main-content">
-        {!token && (
-          <div className="dashboard-warning">Please log in to load logs.</div>
-        )}
-        {error && <div className="dashboard-warning">{error}</div>}
+    <main className="main-content dashboard-main-content logs-main-content">
+      {!token && (
+        <div className="dashboard-warning">Please log in to load logs.</div>
+      )}
+      {error && <div className="dashboard-warning">{error}</div>}
 
-        <section className="logs-panel logs-filter-panel">
+      <section className="logs-panel logs-filter-panel">
           <div className="logs-panel-header">
             <div>
               <h2 className="logs-section-title">Filters</h2>
@@ -230,9 +225,9 @@ const LogsPage = () => {
               />
             </label>
           </div>
-        </section>
+      </section>
 
-        <section className="logs-panel logs-results-panel">
+      <section className="logs-panel logs-results-panel">
           <div className="logs-panel-header">
             <div>
               <h2 className="logs-section-title">Recent Logs</h2>
@@ -316,9 +311,9 @@ const LogsPage = () => {
               </div>
             </div>
           )}
-        </section>
+      </section>
 
-        <div className="dashboard-controls logs-pagination">
+      <div className="dashboard-controls logs-pagination">
           <button
             className="dashboard-btn"
             type="button"
@@ -365,9 +360,8 @@ const LogsPage = () => {
               Go
             </button>
           </div>
-        </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 };
 

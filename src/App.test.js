@@ -9,11 +9,11 @@ test('redirects root route to login', async () => {
   });
 });
 
-test('renders login screen controls', () => {
+test('renders login screen controls', async () => {
   window.history.pushState({}, '', '/login');
   render(<App />);
 
-  expect(screen.getByRole('heading', { name: /cybersentinel/i })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { name: /cybersentinel/i })).toBeInTheDocument();
   expect(screen.getByLabelText(/username\*/i)).toBeInTheDocument();
   expect(screen.getByLabelText(/password\*/i)).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /access system/i })).toBeInTheDocument();
