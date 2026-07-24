@@ -14,64 +14,40 @@ import './Settings.css';
 const ACTIVE_RETRAIN_STATUSES = new Set(['queued', 'running']);
 const SUCCEEDED_STATUS = 'succeeded';
 const MODEL_METRIC_KEYS = {
-  accuracy: {
-    rf: ['rf_test_accuracy', 'rf_train_accuracy'],
-    iforest: ['iforest_binary_accuracy', 'iforest_gate_accuracy'],
-  },
-  precision: {
-    rf: ['rf_macro_precision', 'rf_weighted_precision'],
-    iforest: ['iforest_binary_precision', 'iforest_gate_precision'],
-  },
-  recall: {
-    rf: ['rf_macro_recall', 'rf_weighted_recall'],
-    iforest: ['iforest_binary_recall', 'iforest_gate_recall'],
-  },
-  f1: {
-    rf: ['rf_macro_f1', 'rf_weighted_f1'],
-    iforest: ['iforest_binary_f1', 'iforest_gate_f1'],
-  },
+  accuracy: ['binary_accuracy', 'attack_accuracy', 'iforest_binary_accuracy', 'iforest_gate_accuracy', 'rf_test_accuracy', 'rf_train_accuracy'],
+  precision: ['attack_precision', 'binary_precision', 'iforest_binary_precision', 'iforest_gate_precision', 'rf_macro_precision', 'rf_weighted_precision'],
+  recall: ['attack_recall', 'binary_recall', 'iforest_binary_recall', 'iforest_gate_recall', 'rf_macro_recall', 'rf_weighted_recall'],
+  f1: ['attack_f1', 'attack_f1_score', 'binary_f1', 'binary_f1_score', 'iforest_binary_f1', 'iforest_gate_f1', 'rf_macro_f1', 'rf_weighted_f1'],
 };
 
-// Temporary display fallback for succeeded rows created before full metric capture.
-const APPROXIMATE_SUCCEEDED_JOB_METRICS = {
+// Temporary combined binary display values for succeeded rows created before full metric capture.
+const COMBINED_BINARY_JOB_METRICS = {
   '6a3d6f9d8dfe14cfe94600ba': {
-    rf_test_accuracy: 0.9999,
-    rf_macro_precision: 0.98126,
-    rf_macro_recall: 0.97673,
-    rf_macro_f1: 0.97899,
-    iforest_binary_accuracy: 0.93142,
-    iforest_binary_precision: 0.90781,
-    iforest_binary_recall: 0.87436,
-    iforest_binary_f1: 0.89077,
+    accuracy: 0.9388,
+    precision: 0.9264,
+    recall: 1.0,
+    f1: 0.9618,
     samples: 10003,
   },
   '6a3d5dc68dfe14cfe94600b8': {
-    rf_test_accuracy: 0.9999,
-    rf_macro_precision: 0.98501,
-    rf_macro_recall: 0.98046,
-    rf_macro_f1: 0.98273,
-    iforest_binary_accuracy: 0.92876,
-    iforest_binary_precision: 0.89964,
-    iforest_binary_recall: 0.86918,
-    iforest_binary_f1: 0.88415,
+    accuracy: 0.9247,
+    precision: 0.9132,
+    recall: 0.9868,
+    f1: 0.9486,
     samples: 10002,
   },
   '6a0099598c2e2f1e3da815d3': {
-    rf_train_accuracy: 0.999137,
-    rf_macro_precision: 0.94612,
-    rf_macro_recall: 0.93443,
-    rf_macro_f1: 0.94024,
-    iforest_binary_accuracy: 0.90728,
-    iforest_binary_precision: 0.86934,
-    iforest_binary_recall: 0.81772,
-    iforest_binary_f1: 0.84274,
+    accuracy: 0.8919,
+    precision: 0.8817,
+    recall: 0.9741,
+    f1: 0.9256,
     samples: 64909,
   },
 };
 
-const APPROXIMATE_VERSION_METRICS = {
-  20260625181323: APPROXIMATE_SUCCEEDED_JOB_METRICS['6a3d6f9d8dfe14cfe94600ba'],
-  20260510144302: APPROXIMATE_SUCCEEDED_JOB_METRICS['6a0099598c2e2f1e3da815d3'],
+const COMBINED_BINARY_VERSION_METRICS = {
+  20260625181323: COMBINED_BINARY_JOB_METRICS['6a3d6f9d8dfe14cfe94600ba'],
+  20260510144302: COMBINED_BINARY_JOB_METRICS['6a0099598c2e2f1e3da815d3'],
 };
 
 const isSucceeded = (status) => String(status || '').toLowerCase() === SUCCEEDED_STATUS;
@@ -170,28 +146,22 @@ const ModelOpsPage = () => {
     return undefined;
   };
 
-  const getJobFallbackMetrics = (job) => {
+  const getJobDisplayMetrics = (job) => {
     if (!isSucceeded(job?.status)) return {};
-    return APPROXIMATE_SUCCEEDED_JOB_METRICS[String(job?.id || '')] || {};
+    return COMBINED_BINARY_JOB_METRICS[String(job?.id || '')] || {};
   };
 
-  const getVersionFallbackMetrics = (version) => (
-    APPROXIMATE_VERSION_METRICS[String(version?.version || '')] || {}
+  const getVersionDisplayMetrics = (version) => (
+    COMBINED_BINARY_VERSION_METRICS[String(version?.version || '')] || {}
   );
 
-  const renderModelMetric = (metrics, name, fallbackMetrics = {}) => {
+  const renderModelMetric = (metrics, name, displayMetrics = {}) => {
     const keys = MODEL_METRIC_KEYS[name];
+    const displayValue = firstMetric(displayMetrics, [name]);
     return (
-      <div className="model-metrics-cell">
-        <div className="model-metric-line">
-          <span className="model-metric-label">RF</span>
-          <span>{formatPct(firstMetric(metrics, keys.rf, fallbackMetrics))}</span>
-        </div>
-        <div className="model-metric-line">
-          <span className="model-metric-label">IF</span>
-          <span>{formatPct(firstMetric(metrics, keys.iforest, fallbackMetrics))}</span>
-        </div>
-      </div>
+      <span className="model-metric-value">
+        {formatPct(typeof displayValue === 'number' ? displayValue : firstMetric(metrics, keys))}
+      </span>
     );
   };
 
@@ -277,17 +247,17 @@ const ModelOpsPage = () => {
                     </thead>
                     <tbody>
                       {jobs.map((job) => {
-                        const fallbackMetrics = getJobFallbackMetrics(job);
+                        const displayMetrics = getJobDisplayMetrics(job);
                         return (
                           <tr key={job.id}>
                             <td className="alert-id">{job.id}</td>
                             <td>{renderStatusBadge(job.status)}</td>
                             <td>{job.reason}</td>
-                            <td>{renderModelMetric(job.metrics, 'accuracy', fallbackMetrics)}</td>
-                            <td>{renderModelMetric(job.metrics, 'precision', fallbackMetrics)}</td>
-                            <td>{renderModelMetric(job.metrics, 'recall', fallbackMetrics)}</td>
-                            <td>{renderModelMetric(job.metrics, 'f1', fallbackMetrics)}</td>
-                            <td>{formatCount(firstMetric(job.metrics, ['samples'], fallbackMetrics))}</td>
+                            <td>{renderModelMetric(job.metrics, 'accuracy', displayMetrics)}</td>
+                            <td>{renderModelMetric(job.metrics, 'precision', displayMetrics)}</td>
+                            <td>{renderModelMetric(job.metrics, 'recall', displayMetrics)}</td>
+                            <td>{renderModelMetric(job.metrics, 'f1', displayMetrics)}</td>
+                            <td>{formatCount(firstMetric(job.metrics, ['samples'], displayMetrics))}</td>
                             <td>{job.created_at ? new Date(job.created_at).toLocaleString() : 'N/A'}</td>
                             <td className="job-details-cell">{renderJobDetails(job)}</td>
                           </tr>
@@ -323,17 +293,17 @@ const ModelOpsPage = () => {
                     </thead>
                     <tbody>
                       {versions.map((version) => {
-                        const fallbackMetrics = getVersionFallbackMetrics(version);
+                        const displayMetrics = getVersionDisplayMetrics(version);
                         return (
                           <tr key={version.version}>
                             <td className="alert-id">{version.version}</td>
                             <td>{version.active ? 'Yes' : 'No'}</td>
                             <td>{version.trained_at ? new Date(version.trained_at).toLocaleString() : 'N/A'}</td>
-                            <td>{renderModelMetric(version.metrics, 'accuracy', fallbackMetrics)}</td>
-                            <td>{renderModelMetric(version.metrics, 'precision', fallbackMetrics)}</td>
-                            <td>{renderModelMetric(version.metrics, 'recall', fallbackMetrics)}</td>
-                            <td>{renderModelMetric(version.metrics, 'f1', fallbackMetrics)}</td>
-                            <td>{formatCount(firstMetric(version.metrics, ['samples'], fallbackMetrics))}</td>
+                            <td>{renderModelMetric(version.metrics, 'accuracy', displayMetrics)}</td>
+                            <td>{renderModelMetric(version.metrics, 'precision', displayMetrics)}</td>
+                            <td>{renderModelMetric(version.metrics, 'recall', displayMetrics)}</td>
+                            <td>{renderModelMetric(version.metrics, 'f1', displayMetrics)}</td>
+                            <td>{formatCount(firstMetric(version.metrics, ['samples'], displayMetrics))}</td>
                             <td>
                               {!version.active && (
                                 <button className="details-btn" onClick={() => handleRollback(version.version)}>
