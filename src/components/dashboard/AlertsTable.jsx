@@ -14,7 +14,8 @@ const AlertsTable = ({
   showSeverity = false,
   isAdmin = false,
   onConfirmKnown = null,
-  onMarkFalsePositive = null
+  onMarkFalsePositive = null,
+  emptyMessage = ''
 }) => {
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -44,6 +45,13 @@ const AlertsTable = ({
               </tr>
             </thead>
             <tbody>
+              {alerts.length === 0 && emptyMessage && (
+                <tr>
+                  <td className="alerts-empty-state" colSpan={showSeverity ? 9 : 8}>
+                    {emptyMessage}
+                  </td>
+                </tr>
+              )}
               {alerts.map((alert) => {
                 const severity = String(alert.severity || 'low').toLowerCase();
                 return (

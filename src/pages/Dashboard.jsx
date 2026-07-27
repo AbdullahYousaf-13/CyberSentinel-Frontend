@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AlertCards from '../components/dashboard/AlertCards';
 import AlertsTable from '../components/dashboard/AlertsTable';
 import AttackChart from '../components/dashboard/AttackChart';
 import ThreatPie from '../components/dashboard/ThreatPie';
-import { confirmKnownAttack, fetchAlertAnalytics, fetchAlerts, markFalsePositive } from '../services/api';
+import { confirmKnownAttack, fetchAlertAnalytics, fetchAlertCount, fetchAlerts, markFalsePositive } from '../services/api';
 import { mapAlertToDisplay } from '../utils/securityViewMappers';
 import './Dashboard.css';
 
@@ -14,6 +14,19 @@ const DASHBOARD_ALERT_TYPE_FILTERS = [
   { key: 'anomaly', label: 'Anomaly' },
   { key: 'known_attack', label: 'Known Attack' }
 ];
+const ALERT_SEARCH_PLACEHOLDER = 'Incident ID, Source IP, Model Version';
+
+const toApiDateTime = (value, { endOfMinute = false } = {}) => {
+  if (!value) return undefined;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return undefined;
+  if (endOfMinute) {
+    date.setSeconds(59, 999);
+  } else {
+    date.setSeconds(0, 0);
+  }
+  return date.toISOString();
+};
 
 const Dashboard = () => {
   const [alerts, setAlerts] = useState([]);
@@ -32,23 +45,52 @@ const Dashboard = () => {
   const [activeSeverity, setActiveSeverity] = useState('total');
   const [activeAlertType, setActiveAlertType] = useState('all');
   const [pageInput, setPageInput] = useState('1');
+  const [alertSearch, setAlertSearch] = useState('');
+  const [filterStart, setFilterStart] = useState('');
+  const [filterEnd, setFilterEnd] = useState('');
+  const [appliedAlertSearch, setAppliedAlertSearch] = useState('');
+  const [appliedFilterStart, setAppliedFilterStart] = useState('');
+  const [appliedFilterEnd, setAppliedFilterEnd] = useState('');
+  const [filteredAlertCount, setFilteredAlertCount] = useState(0);
+  const alertsRequestId = useRef(0);
   const token = localStorage.getItem('token');
   const offset = (page - 1) * PAGE_SIZE;
 
+  const alertQueryParams = useMemo(() => {
+    const severity = activeSeverity === 'total' ? undefined : (activeSeverity === 'high' ? 'high' : activeSeverity);
+    const alertType = activeAlertType === 'all' ? undefined : activeAlertType;
+    return {
+      severity,
+      alert_type: alertType,
+      start_ts: toApiDateTime(appliedFilterStart),
+      end_ts: toApiDateTime(appliedFilterEnd, { endOfMinute: true }),
+      q: appliedAlertSearch || undefined
+    };
+  }, [activeSeverity, activeAlertType, appliedFilterStart, appliedFilterEnd, appliedAlertSearch]);
+
   const loadAlerts = useCallback(async () => {
+    const requestId = alertsRequestId.current + 1;
+    alertsRequestId.current = requestId;
     setIsAlertsLoading(true);
     setAlertsError('');
     try {
-      const severity = activeSeverity === 'total' ? undefined : (activeSeverity === 'high' ? 'high' : activeSeverity);
-      const alertType = activeAlertType === 'all' ? undefined : activeAlertType;
-      const alertsData = await fetchAlerts({ limit: PAGE_SIZE, offset, severity, alert_type: alertType });
+      const [alertsData, countData] = await Promise.all([
+        fetchAlerts({ limit: PAGE_SIZE, offset, ...alertQueryParams }),
+        fetchAlertCount(alertQueryParams)
+      ]);
+      if (requestId !== alertsRequestId.current) return;
       setAlerts(alertsData);
+      setFilteredAlertCount(Number(countData?.count || 0));
     } catch (err) {
+      if (requestId !== alertsRequestId.current) return;
       setAlertsError(`Failed to load dashboard alerts: ${err.message}`);
+      setFilteredAlertCount(0);
     } finally {
-      setIsAlertsLoading(false);
+      if (requestId === alertsRequestId.current) {
+        setIsAlertsLoading(false);
+      }
     }
-  }, [offset, activeSeverity, activeAlertType]);
+  }, [offset, alertQueryParams]);
 
   const loadAnalytics = useCallback(async () => {
     setIsAnalyticsLoading(true);
@@ -85,15 +127,9 @@ const Dashboard = () => {
     () => analytics?.severity_counts || { total: 0, high: 0, medium: 0, low: 0 },
     [analytics]
   );
-  const totalAlertsForActiveFilter = useMemo(() => {
-    if (activeSeverity === 'total') return alertStats.total || 0;
-    if (activeSeverity === 'high') return alertStats.high || 0;
-    if (activeSeverity === 'medium') return alertStats.medium || 0;
-    return alertStats.low || 0;
-  }, [activeSeverity, alertStats]);
   const totalPages = useMemo(
-    () => Math.max(1, Math.ceil(totalAlertsForActiveFilter / PAGE_SIZE)),
-    [totalAlertsForActiveFilter]
+    () => Math.max(1, Math.ceil(filteredAlertCount / PAGE_SIZE)),
+    [filteredAlertCount]
   );
 
   const attackTrendsData = useMemo(() => {
@@ -154,6 +190,23 @@ const Dashboard = () => {
     setPage(clampedPage);
   };
 
+  const applyAlertFilters = () => {
+    setPage(1);
+    setAppliedAlertSearch(alertSearch.trim());
+    setAppliedFilterStart(filterStart);
+    setAppliedFilterEnd(filterEnd);
+  };
+
+  const clearAlertFilters = () => {
+    setPage(1);
+    setAlertSearch('');
+    setFilterStart('');
+    setFilterEnd('');
+    setAppliedAlertSearch('');
+    setAppliedFilterStart('');
+    setAppliedFilterEnd('');
+  };
+
   useEffect(() => {
     setPageInput(String(page));
   }, [page]);
@@ -192,6 +245,59 @@ const Dashboard = () => {
           </button>
         ))}
       </div>
+      <section className="dashboard-alert-search" aria-label="Search dashboard alerts">
+        <div className="dashboard-search-field">
+          <label htmlFor="dashboard-alert-search">Find Alert</label>
+          <input
+            id="dashboard-alert-search"
+            type="search"
+            placeholder={ALERT_SEARCH_PLACEHOLDER}
+            value={alertSearch}
+            onChange={(e) => setAlertSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                applyAlertFilters();
+              }
+            }}
+          />
+        </div>
+        <div className="dashboard-search-field compact">
+          <label htmlFor="dashboard-alert-start">Start</label>
+          <input
+            id="dashboard-alert-start"
+            type="datetime-local"
+            value={filterStart}
+            onChange={(e) => setFilterStart(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                applyAlertFilters();
+              }
+            }}
+          />
+        </div>
+        <div className="dashboard-search-field compact">
+          <label htmlFor="dashboard-alert-end">End</label>
+          <input
+            id="dashboard-alert-end"
+            type="datetime-local"
+            value={filterEnd}
+            onChange={(e) => setFilterEnd(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                applyAlertFilters();
+              }
+            }}
+          />
+        </div>
+        <div className="dashboard-search-actions">
+          <button className="dashboard-btn" type="button" onClick={applyAlertFilters}>
+            Search
+          </button>
+          <button className="dashboard-btn muted" type="button" onClick={clearAlertFilters}>
+            Clear
+          </button>
+        </div>
+      </section>
       {isAlertsLoading ? (
         <div className="dashboard-warning">Loading alerts...</div>
       ) : (
@@ -200,6 +306,7 @@ const Dashboard = () => {
           showSeverity
           onConfirmKnown={handleConfirmKnown}
           onMarkFalsePositive={handleMarkFalsePositive}
+          emptyMessage="No alerts found for selected filters."
         />
       )}
       <div className="dashboard-controls">
@@ -212,7 +319,7 @@ const Dashboard = () => {
         <button
           className="dashboard-btn"
           onClick={() => setPage((previousPage) => Math.max(1, previousPage - 1))}
-          disabled={page === 1}
+          disabled={isAlertsLoading || page === 1}
         >
           Previous Page
         </button>
@@ -222,7 +329,7 @@ const Dashboard = () => {
         <button
           className="dashboard-btn"
           onClick={() => setPage((previousPage) => Math.min(totalPages, previousPage + 1))}
-          disabled={page >= totalPages}
+          disabled={isAlertsLoading || page >= totalPages}
         >
           Next Page
         </button>
@@ -236,6 +343,7 @@ const Dashboard = () => {
             max={totalPages}
             inputMode="numeric"
             value={pageInput}
+            disabled={isAlertsLoading}
             onChange={(e) => setPageInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -243,7 +351,7 @@ const Dashboard = () => {
               }
             }}
           />
-          <button className="dashboard-btn" onClick={handlePageInputSubmit}>
+          <button className="dashboard-btn" onClick={handlePageInputSubmit} disabled={isAlertsLoading}>
             Go
           </button>
         </div>

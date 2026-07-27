@@ -114,6 +114,7 @@ export const resetPassword = async (email, code, newPassword) => {
 };
 
 export const fetchAlerts = async (params = {}) => apiGet('/api/alerts/', params);
+export const fetchAlertCount = async (params = {}) => apiGet('/api/alerts/count', params);
 export const fetchAlertAnalytics = async () => apiGet('/api/alerts/analytics');
 export const fetchLogs = async (params = {}) => apiGet('/api/logs/', params);
 export const fetchLogCount = async (params = {}) => apiGet('/api/logs/count', params);
