@@ -5,6 +5,30 @@ const toDisplay = (value, fallback = 'N/A') => {
   return text;
 };
 
+const ISO_DATE_TIME_RE = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?)(\.\d+)?(Z|[+-]\d{2}:?\d{2})?$/i;
+
+const normalizeApiDateString = (value) => {
+  const text = String(value || '').trim();
+  const match = text.match(ISO_DATE_TIME_RE);
+  if (!match) return text;
+
+  const [, base, rawFraction = '', rawZone = ''] = match;
+  const fraction = rawFraction.length > 4 ? rawFraction.slice(0, 4) : rawFraction;
+  let zone = rawZone;
+  if (/^[+-]\d{4}$/.test(zone)) {
+    zone = `${zone.slice(0, 3)}:${zone.slice(3)}`;
+  }
+  return `${base}${fraction}${zone || 'Z'}`;
+};
+
+export const formatApiDateTime = (value, fallback = 'N/A') => {
+  if (!value) return fallback;
+  const normalizedValue = value instanceof Date ? value : normalizeApiDateString(value);
+  const date = new Date(normalizedValue);
+  if (Number.isNaN(date.getTime())) return fallback;
+  return date.toLocaleString(undefined, { timeZoneName: 'short' });
+};
+
 const classifySourceApp = (eventOrigin, source) => {
   const probe = `${String(eventOrigin || '')} ${String(source || '')}`.toLowerCase();
   if (/(auth|sshd|login|secure)/i.test(probe)) return 'Authentication';
@@ -81,7 +105,7 @@ export const mapAlertToDisplay = (alert, linkedLog) => {
     : alert?.anomaly_score;
   const rawContext = {
     eventId: summary?.event_id || linkedLog?.event_id || linkedLog?.id || 'N/A',
-    eventTime: rawEventTime ? new Date(rawEventTime).toLocaleString() : 'N/A',
+    eventTime: formatApiDateTime(rawEventTime),
     agentName: summary?.agent_name || linkedLog?.agent_name || 'N/A',
     eventOrigin: summary?.event_origin || linkedLog?.event_origin || 'N/A',
     decoderName: summary?.decoder_name || linkedLog?.decoder_name || 'N/A',
@@ -111,8 +135,8 @@ export const mapAlertToDisplay = (alert, linkedLog) => {
   return {
     id: alert.id,
     incidentId: alert.incident_id || alert.id,
-    detectedAt: new Date(alert.opened_at || alert.created_at).toLocaleString(),
-    lastSeenAt: new Date(alert.last_seen_at || alert.created_at).toLocaleString(),
+    detectedAt: formatApiDateTime(alert.opened_at || alert.created_at),
+    lastSeenAt: formatApiDateTime(alert.last_seen_at || alert.created_at),
     eventCount: Number(alert.event_count || 0),
     sourceIp: resolvedSource,
     destinationIp: resolvedDestination,
@@ -124,7 +148,7 @@ export const mapAlertToDisplay = (alert, linkedLog) => {
     severity: alertSeverity,
     children: children.map((item) => ({
       logId: toDisplay(item?.log_id),
-      eventTime: item?.event_time ? new Date(item.event_time).toLocaleString() : 'N/A',
+      eventTime: formatApiDateTime(item?.event_time),
       severity: toDisplay(item?.severity, 'low'),
       modelVersion: toDisplay(item?.model_version),
       aiScore: formatAiScore(item?.anomaly_score),
@@ -144,7 +168,7 @@ export const mapLogToDisplay = (log) => {
   return {
     id: log.id,
     eventId: log.event_id || log.id,
-    eventTime: eventTime ? new Date(eventTime).toLocaleString() : 'N/A',
+    eventTime: formatApiDateTime(eventTime),
     sourceApp,
     sourceIp,
     destinationIp,

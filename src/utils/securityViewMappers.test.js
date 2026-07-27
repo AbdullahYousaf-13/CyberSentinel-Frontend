@@ -1,8 +1,13 @@
-import { formatNetworkTuple, mapAlertToDisplay, mapLogToDisplay } from './securityViewMappers';
+import { formatApiDateTime, formatNetworkTuple, mapAlertToDisplay, mapLogToDisplay } from './securityViewMappers';
 
 test('formatNetworkTuple returns N/A when network fields are missing', () => {
   expect(formatNetworkTuple(null)).toBe('N/A');
   expect(formatNetworkTuple({})).toBe('N/A');
+});
+
+test('formatApiDateTime treats backend offset-less ISO timestamps as UTC', () => {
+  expect(formatApiDateTime('2026-04-20T10:00:00')).toBe(formatApiDateTime('2026-04-20T10:00:00Z'));
+  expect(formatApiDateTime('2026-04-20T10:00:00.123456')).toBe(formatApiDateTime('2026-04-20T10:00:00.123Z'));
 });
 
 test('mapLogToDisplay uses normalized archive fields', () => {
