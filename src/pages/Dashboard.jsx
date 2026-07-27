@@ -15,12 +15,6 @@ const DASHBOARD_ALERT_TYPE_FILTERS = [
   { key: 'known_attack', label: 'Known Attack' }
 ];
 
-const toApiDateTime = (value) => {
-  if (!value) return undefined;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
-};
-
 const Dashboard = () => {
   const [alerts, setAlerts] = useState([]);
   const [analytics, setAnalytics] = useState({
@@ -38,10 +32,6 @@ const Dashboard = () => {
   const [activeSeverity, setActiveSeverity] = useState('total');
   const [activeAlertType, setActiveAlertType] = useState('all');
   const [pageInput, setPageInput] = useState('1');
-  const [alertSearch, setAlertSearch] = useState('');
-  const [appliedAlertSearch, setAppliedAlertSearch] = useState('');
-  const [filterStart, setFilterStart] = useState('');
-  const [filterEnd, setFilterEnd] = useState('');
   const token = localStorage.getItem('token');
   const offset = (page - 1) * PAGE_SIZE;
 
@@ -51,22 +41,14 @@ const Dashboard = () => {
     try {
       const severity = activeSeverity === 'total' ? undefined : (activeSeverity === 'high' ? 'high' : activeSeverity);
       const alertType = activeAlertType === 'all' ? undefined : activeAlertType;
-      const alertsData = await fetchAlerts({
-        limit: PAGE_SIZE,
-        offset,
-        severity,
-        alert_type: alertType,
-        start_ts: toApiDateTime(filterStart),
-        end_ts: toApiDateTime(filterEnd),
-        q: appliedAlertSearch.trim() || undefined
-      });
+      const alertsData = await fetchAlerts({ limit: PAGE_SIZE, offset, severity, alert_type: alertType });
       setAlerts(alertsData);
     } catch (err) {
       setAlertsError(`Failed to load dashboard alerts: ${err.message}`);
     } finally {
       setIsAlertsLoading(false);
     }
-  }, [offset, activeSeverity, activeAlertType, filterStart, filterEnd, appliedAlertSearch]);
+  }, [offset, activeSeverity, activeAlertType]);
 
   const loadAnalytics = useCallback(async () => {
     setIsAnalyticsLoading(true);
@@ -172,19 +154,6 @@ const Dashboard = () => {
     setPage(clampedPage);
   };
 
-  const applyAlertFilters = () => {
-    setPage(1);
-    setAppliedAlertSearch(alertSearch);
-  };
-
-  const clearAlertFilters = () => {
-    setPage(1);
-    setAlertSearch('');
-    setAppliedAlertSearch('');
-    setFilterStart('');
-    setFilterEnd('');
-  };
-
   useEffect(() => {
     setPageInput(String(page));
   }, [page]);
@@ -223,55 +192,6 @@ const Dashboard = () => {
           </button>
         ))}
       </div>
-      <section className="dashboard-alert-search" aria-label="Search dashboard alerts">
-        <div className="dashboard-search-field">
-          <label htmlFor="dashboard-alert-search">Find Alert</label>
-          <input
-            id="dashboard-alert-search"
-            type="search"
-            placeholder="Incident ID, IP, type, severity, model, log id, message..."
-            value={alertSearch}
-            onChange={(e) => setAlertSearch(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                applyAlertFilters();
-              }
-            }}
-          />
-        </div>
-        <div className="dashboard-search-field compact">
-          <label htmlFor="dashboard-alert-start">Start</label>
-          <input
-            id="dashboard-alert-start"
-            type="datetime-local"
-            value={filterStart}
-            onChange={(e) => {
-              setPage(1);
-              setFilterStart(e.target.value);
-            }}
-          />
-        </div>
-        <div className="dashboard-search-field compact">
-          <label htmlFor="dashboard-alert-end">End</label>
-          <input
-            id="dashboard-alert-end"
-            type="datetime-local"
-            value={filterEnd}
-            onChange={(e) => {
-              setPage(1);
-              setFilterEnd(e.target.value);
-            }}
-          />
-        </div>
-        <div className="dashboard-search-actions">
-          <button className="dashboard-btn" type="button" onClick={applyAlertFilters}>
-            Search
-          </button>
-          <button className="dashboard-btn muted" type="button" onClick={clearAlertFilters}>
-            Clear
-          </button>
-        </div>
-      </section>
       {isAlertsLoading ? (
         <div className="dashboard-warning">Loading alerts...</div>
       ) : (

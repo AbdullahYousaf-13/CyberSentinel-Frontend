@@ -44,13 +44,6 @@ const AlertsTable = ({
               </tr>
             </thead>
             <tbody>
-              {alerts.length === 0 && (
-                <tr>
-                  <td className="alerts-empty-state" colSpan={showSeverity ? 9 : 8}>
-                    No alerts found for selected filters.
-                  </td>
-                </tr>
-              )}
               {alerts.map((alert) => {
                 const severity = String(alert.severity || 'low').toLowerCase();
                 return (
